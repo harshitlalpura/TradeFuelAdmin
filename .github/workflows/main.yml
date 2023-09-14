@@ -6,19 +6,6 @@ on:
       - master
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Build React app
-        run: |
-          cd /home/hashmedia/tradefuel
-          npm install
-          npm run build
-
   deploy:
     runs-on: ubuntu-latest
 
