@@ -1,0 +1,45 @@
+name: React CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build React app
+        run: |
+          cd /path/to/your/app
+          npm install
+          npm run build
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: 22  # The default SSH port
+          script: |
+            cd /path/to/your/app
+            git pull
+            npm install
+            npm run build
+
+      - name: Restart Node.js app with forever
+        run: |
+          # Navigate to your application directory
+          cd /path/to/your/app
+
+          # Replace 'your_app_name' with the name or ID of your specific 'forever' process
+          forever restart your_app_name
