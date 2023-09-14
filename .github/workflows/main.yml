@@ -41,5 +41,5 @@ jobs:
           # Navigate to your application directory
           cd /home/hashmedia/tradefuel
 
-          # Replace 'your_app_name' with the name or ID of your specific 'forever' process
+          # Replace 'your_app_name' with the name or ID of your specific 'forever' processs
           forever restart server/index.js
