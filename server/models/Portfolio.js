@@ -16,11 +16,6 @@ const portfolioSchema = new mongoose.Schema({
         required: true,
         default: 0
     },
-    buyPrice: {
-        type: Number,
-        required: true,
-        default: 0
-    },
     averagePrice: {
         type: Number,
         required: true,

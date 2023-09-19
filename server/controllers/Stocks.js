@@ -18,7 +18,7 @@ const cheerio = require("cheerio");
 
 exports.fetchTopGainers = async (req, res) => {
 
-    console.log("G");
+   // console.log("G");
     const url = "https://www.google.com/finance/markets/gainers?hl=en";
     const response = await unirest.get(url).header({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"})
     const $ = cheerio.load(response.body);
@@ -40,7 +40,7 @@ exports.fetchTopGainers = async (req, res) => {
 exports.fetchTopLosers = async (req, res) => {
 
 
-    console.log("L");
+    //console.log("L");
     const url = "https://www.google.com/finance/markets/losers?hl=en";
     const response = await unirest.get(url).header({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"})
     const $ = cheerio.load(response.body);
@@ -138,7 +138,7 @@ exports.importBSEStocksCSV = async (req, res) => {
         .on('end', async () => {
             try {
 
-                console.log(stocksToInsert.length);
+              //  console.log(stocksToInsert.length);
 
                 if (stocksToInsert.length > 0) {
                     await Stocks.insertMany(stocksToInsert);
@@ -199,17 +199,24 @@ exports.importNSEStocksCSV = async (req, res) => {
 exports.searchStock = async (req, res) => {
     try {
         const searchTerm = req.body.searchQuery;
+        //https://fmpcloud.io/api/v3/search?query=RELIANCE&limit=10&exchange=NSE&apikey=5b4ae5a2feea1ab3797342fd287cfc92
+
+        var url = process.env.FMP_API_BASE_URL + 'search?query=' + searchTerm + '&limit=10&exchange=NSE&apikey=' + res.locals.stockAPIKey;
 
 
-        // Search in stockSymbol, companyName, and stockCode
-        const stocks = await Stocks.find({
-            $or: [
-                {stockSymbol: new RegExp(searchTerm, 'i')}, // Case-insensitive search
-                {companyName: new RegExp(searchTerm, 'i')}
-            ]
-        });
+        console.log(url);
+        axios(url)
+            .then((response) => {
 
-        res.status(200).json({status: 1, data: stocks});
+                console.log(response.data);
+                res.json({success: true, data: response.data});
+
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+
 
     } catch (err) {
         res.status(500).json({error: "Internal server error"});
@@ -222,7 +229,7 @@ exports.fetchTransactions = async (req, res) => {
     try {
         const user_id = req.body.user_id;
 
-        console.log(req.body);
+    //    console.log(req.body);
 
 
         // Search in stockSymbol, companyName, and stockCode
@@ -244,74 +251,59 @@ exports.fetchTransactions = async (req, res) => {
     }
 }
 
+
+exports.verifyWatchlist = async (req, res) => {
+
+    const {stock_symbol, stock_name, userId} = req.body;
+
+   // console.log(stock_symbol + " " + userId);
+
+    const user = await Users.findOne({_id: userId, user_trash: false});
+
+
+    // Check if the symbol already exists in the watchlist
+    const symbolExists = user.user_watchlist.some(entry => entry.stock_symbol === stock_symbol);
+
+
+    res.json({
+        success: true,
+        isInWatchList: symbolExists,
+
+    });
+
+
+};
+
+
 exports.fetchStockDetails = async (req, res) => {
 
-    console.log(req.body);
-    var options1 = {
-        method: 'post',
-        url: process.env.DHAN_API_BASE_URL + 'charts/historical',
-        headers: {
-            'Content-Type': 'application/json',
-            'access-token': process.env.DHAN_API_ACCESS_TOKEN // Replace with your actual token
-        },
-        data: {
-            "symbol": req.body.stockSymbol,
-            "exchangeSegment": req.body.exchange + "_EQ",
-            "instrument": "EQUITY",
-            "expiryCode": 0,
-            "fromDate": moment.tz("Asia/Kolkata").subtract(1, 'weeks').format("YYYY-MM-DD"),
-            "toDate": moment.tz("Asia/Kolkata").format("YYYY-MM-DD"),
+    const {symbol, name, userId} = req.body;
 
-        }
-    }
+   // console.log(symbol + " " + userId);
 
-    axios(options1)
-        .then((response1) => {
+    const user = await Users.findOne({_id: userId, user_trash: false});
 
+    const portfolio = await Portfolio.findOne({
+        userId: userId,
+        stockSymbol: symbol
+    });
 
-            var options2 = {
-                method: 'post',
-                url: process.env.DHAN_API_BASE_URL + 'charts/intraday',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'access-token': process.env.DHAN_API_ACCESS_TOKEN // Replace with your actual token
-                },
-                data: {
-                    "securityId": req.body.stockCode,
-                    "exchangeSegment": req.body.exchange + "_EQ",
-                    "instrument": "EQUITY",
-                }
-            }
+    var url = process.env.FMP_API_BASE_URL + 'quote/' + symbol + '?apikey=' + res.locals.stockAPIKey;
+    console.log(url);
+    axios(url).then((response) => {
 
-
-            axios(options2)
-                .then(async (response2) => {
-
-
-                    const portfolio = await Portfolio.findOne({
-                        userId: req.body.userId,
-                        stockSymbol: req.body.stockSymbol
-                    });
-
-                    const users = await Users.findOne({_id: req.body.userId, user_trash: false});
-
-
-                    res.json({
-                        status: 1,
-                        historical: response1.data,
-                        intraday: response2.data,
-                        portfolio: portfolio,
-                        user: users
-                    });
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-
-        })
-        .catch((error) => {
-            console.error('Error:', error);
+        res.json({
+            success: true,
+            portfolio: portfolio,
+            data: response.data,
+            user: user
         });
+
+    }).catch((error) => {
+        console.error('Error:', error);
+        res.json({success: false, error: error});
+    });
+
 
 };
 
@@ -322,39 +314,55 @@ exports.processTransaction = async (req, res) => {
 
         const portfolio = await Portfolio.findOne({
             userId: req.body.userId,
-            stockSymbol: req.body.stockSymbol
+            stockSymbol: req.body.symbol
         });
 
         const users = await Users.findOne({_id: req.body.userId, user_trash: false});
 
         var type = req.body.type;
 
-        console.log(users);
-        console.log(req.body);
+        let price = parseFloat(req.body.price.replace("₹", ""));
+        let avgPrice = 0;
+
+        if (portfolio != null) {
+            avgPrice = (portfolio.averagePrice + price) / 2;
+        } else {
+            avgPrice = price;
+        }
+
+        //console.log(users);
+        //console.log(req.body);
 
         if (type == "B") {
 
-            if (users.user_balance < (parseInt(req.body.quantity) * req.body.marketPrice)) {
+            if (users.user_balance < (parseInt(req.body.quantity) * price)) {
 
-                res.status(200).json({status: 0, message: "You don't have enough balance to purchase this stock."});
+                res.status(200).json({
+                    success: false,
+                    message: "You don't have enough balance to purchase this stock."
+                });
             } else {
 
                 const result = await Users.updateOne(
                     {_id: req.body.userId},
-                    {$inc: {user_balance: -((parseInt(req.body.quantity) * req.body.marketPrice))}}  // Using $inc to decrement
+                    {$inc: {user_balance: -((parseInt(req.body.quantity) * price))}}  // Using $inc to decrement
                 );
 
                 const updateResult = await Portfolio.updateOne(
                     {
                         userId: req.body.userId,
-                        stockSymbol: req.body.stockSymbol,
+                        stockSymbol: req.body.symbol,
                     },
                     {
                         $inc: {
                             quantity: parseInt(req.body.quantity),
-                            totalInvested: (parseInt(req.body.quantity) * req.body.marketPrice)
+                            totalInvested: (parseInt(req.body.quantity) * price)
                         },  // Increment the quantity.
-                        $set: {stockSymbol: req.body.stockSymbol}  // Set stockSymbol (has no effect if document already exists).
+                        $set: {
+                            stockSymbol: req.body.symbol,
+                            averagePrice: avgPrice,
+
+                        }  // Set stockSymbol (has no effect if document already exists).
                     },
                     {
                         upsert: true,
@@ -365,23 +373,23 @@ exports.processTransaction = async (req, res) => {
                 const newTransaction = new Transactions({
                     userId: req.body.userId,
                     transactionType: 'B',
-                    stockSymbol: req.body.stockSymbol,
+                    stockSymbol: req.body.symbol,
                     quantity: parseInt(req.body.quantity),
-                    amount: (parseInt(req.body.quantity) * req.body.marketPrice) // e.g., $50 per stock
+                    amount: (parseInt(req.body.quantity) * price) // e.g., $50 per stock
                 });
                 newTransaction.save()
                     .then(() => console.log("Transaction saved successfully!"))
                     .catch(err => console.error("Error saving transaction:", err));
 
                 console.log(updateResult);
-                res.status(200).json({status: 1, message: ""});
+                res.status(200).json({success: true, message: ""});
             }
 
         } else if (type == "S") {
 
             const result = await Users.updateOne(
                 {_id: req.body.userId},
-                {$inc: {user_balance: ((parseInt(req.body.quantity) * req.body.marketPrice))}}  // Using $inc to decrement
+                {$inc: {user_balance: ((parseInt(req.body.quantity) * price))}}  // Using $inc to decrement
             );
 
             if (portfolio != null) {
@@ -390,7 +398,7 @@ exports.processTransaction = async (req, res) => {
 
                     const portfolio = await Portfolio.deleteOne({
                         userId: req.body.userId,
-                        stockSymbol: req.body.stockSymbol
+                        stockSymbol: req.body.symbol
                     });
 
                 } else {
@@ -398,14 +406,14 @@ exports.processTransaction = async (req, res) => {
                     const updateResult = await Portfolio.updateOne(
                         {
                             userId: req.body.userId,
-                            stockSymbol: req.body.stockSymbol,
+                            stockSymbol: req.body.symbol,
                         },
                         {
                             $inc: {
                                 quantity: -parseInt(req.body.quantity),
-                                totalInvested: -(parseInt(req.body.quantity) * req.body.marketPrice)
+                                totalInvested: -(parseInt(req.body.quantity) * price)
                             },  // Increment the quantity.
-                            $set: {stockSymbol: req.body.stockSymbol}  // Set stockSymbol (has no effect if document already exists).
+                            $set: {stockSymbol: req.body.symbol}  // Set stockSymbol (has no effect if document already exists).
                         }
                     );
 
@@ -416,19 +424,19 @@ exports.processTransaction = async (req, res) => {
                 const newTransaction = new Transactions({
                     userId: req.body.userId,
                     transactionType: 'S',
-                    stockSymbol: req.body.stockSymbol,
+                    stockSymbol: req.body.symbol,
                     quantity: parseInt(req.body.quantity),
-                    amount: (parseInt(req.body.quantity) * req.body.marketPrice) // e.g., $50 per stock
+                    amount: (parseInt(req.body.quantity) * price) // e.g., $50 per stock
                 });
                 newTransaction.save()
                     .then(() => console.log("Transaction saved successfully!"))
                     .catch(err => console.error("Error saving transaction:", err));
 
-                res.status(200).json({status: 1, message: ""});
+                res.status(200).json({success: true, message: ""});
 
             } else {
 
-                res.status(200).json({status: 0, message: "You don't have this stock in your portfolio."});
+                res.status(200).json({success: false, message: "You don't have this stock in your portfolio."});
             }
 
         }
@@ -491,6 +499,228 @@ exports.fetchCurrentPrice = async (req, res) => {
         .then((response) => {
 
             res.json({success: true, data: response.data});
+
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            res.json({success: false, error: error});
+        });
+
+};
+
+exports.toggleStockWatchList = async (req, res) => {
+
+    const {stock_symbol, stock_name, userId} = req.body;
+
+
+    const user = await Users.findById(userId);
+
+
+    // Check if the symbol already exists in the watchlist
+    const symbolExists = user.user_watchlist.some(entry => entry.stock_symbol === stock_symbol);
+
+
+    if (!symbolExists) {
+        // Add the new stock entry to the watchlist
+        user.user_watchlist.push({stock_symbol, stock_name});
+
+        // Save the user document with the updated watchlist
+        await user.save();
+
+        res.json({success: true, message: "Stock added to the watchlist."});
+    } else {
+
+        user.user_watchlist = user.user_watchlist.filter(entry => entry.stock_symbol !== stock_symbol);
+
+        // Save the user document with the updated watchlist
+        await user.save();
+
+        res.json({success: true, message: "Stock removed from the watchlist."});
+    }
+};
+
+exports.deleteStockFromWatchlist = async (req, res) => {
+    const stockToRemoveSymbol = req.body.stock_symbol; // Replace with the symbol of the stock you want to remove
+
+    const user = await Users.findById(userId);
+
+    // Use the filter method to remove the stock with the specified symbol
+    Users.user_watchlist = Users.user_watchlist.filter(stock => stock.stock_symbol !== stockToRemoveSymbol);
+
+    // Save the user document
+    Users.save((saveErr, savedUser) => {
+        if (saveErr) {
+            // Handle the save error
+            res.json({success: false, message: saveErr.toString()});
+        } else {
+            // The stock has been added to the user's watchlist
+            res.json({success: true, message: "Stock removed from the watchlist."});
+        }
+    });
+};
+
+exports.fetchWatchlist = async (req, res) => {
+
+    try {
+
+        const {userId} = req.body;
+        // Use await with findById to fetch the user by ID
+        const user = await Users.findById(userId);
+
+        // Access the watchlist field to retrieve all watchlist entries
+        const watchlist = user.user_watchlist;
+
+        if (watchlist.length > 0) {
+            const symbols = watchlist.map(entry => entry.stock_symbol);
+            // Join the symbols into a comma-separated string
+            const symbolString = symbols.join(',');
+
+            var url = process.env.FMP_API_BASE_URL + 'quote/' + symbolString + '?apikey=' + res.locals.stockAPIKey;
+
+            console.log(url);
+            axios(url)
+                .then((response) => {
+
+                    res.json({success: true, data: response.data});
+
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    res.json({success: false, error: error});
+                });
+
+        } else {
+            res.json({success: true, data: []});
+        }
+
+    } catch (error) {
+        // Handle any errors that may occur during the database operation
+        res.json({success: false, error: error.toString()});
+
+
+    }
+};
+
+
+exports.fetchPortfolio = async (req, res) => {
+
+    try {
+
+        const {userId} = req.body;
+        // Use await with findById to fetch the user by ID
+        const portfolio = await Portfolio.find({
+            userId: userId,
+        });
+
+       // console.log(portfolio);
+
+        if (portfolio && portfolio.length > 0) {
+            const symbols = portfolio.map(entry => entry.stockSymbol);
+            // Join the symbols into a comma-separated string
+            const symbolString = symbols.join(',');
+
+            var url = process.env.FMP_API_BASE_URL + 'quote/' + symbolString + '?apikey=' + res.locals.stockAPIKey;
+
+            console.log(url);
+            axios(url)
+                .then((response) => {
+
+                    var data = response.data;
+
+
+                    const totalPortfolio = calculatePortfolioValue(portfolio, data);
+
+
+                    res.json({
+                        success: true,
+                        data: response.data,
+                        portfolio: portfolio,
+                        totalPortfolioValue: totalPortfolio.totalPortfolioValue,
+                        totalPortfolioChange: totalPortfolio.totalPortfolioChange,
+                    });
+
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    res.json({success: false, error: error});
+                });
+
+        } else {
+            res.json({success: true, data: []});
+        }
+
+    } catch (error) {
+        // Handle any errors that may occur during the database operation
+        res.json({success: false, error: error.toString()});
+
+
+    }
+};
+
+const calculatePortfolioValue = (portfolio, currentPosition) => {
+    let totalPortfolioValue = 0;
+    let totalPortfolioChange = 0;
+
+    portfolio.forEach((portfolioItem) => {
+        const matchingCurrentPosition = currentPosition.find(
+            (currentItem) => currentItem.symbol === portfolioItem.stockSymbol
+        );
+
+        if (matchingCurrentPosition) {
+            const positionValue = portfolioItem.quantity * matchingCurrentPosition.price;
+            totalPortfolioValue += positionValue;
+            totalPortfolioChange += (portfolioItem.quantity * matchingCurrentPosition.change);
+        }
+    });
+
+    return {totalPortfolioValue, totalPortfolioChange};
+};
+
+
+exports.fetchTrandingStocks = async (req, res) => {
+
+    var url = process.env.FMP_API_BASE_URL + 'stock-screener?limit=5&country=IN&isActivelyTrading=true&apikey=' + res.locals.stockAPIKey;
+//https://fmpcloud.io/api/v3/stock-screener?limit=5&country=IN&isActivelyTrading=true&apikey=5b4ae5a2feea1ab3797342fd287cfc92
+
+    console.log(url);
+    axios(url)
+        .then(async (response) => {
+
+            let data = response.data;
+
+            for (var i = 0; i < data.length; i++) {
+
+                var url = process.env.FMP_API_BASE_URL + 'historical-chart/5min/' +data[i].symbol + '?apikey=' + res.locals.stockAPIKey;
+
+
+                console.log(url);
+                const response = await axios(url);
+
+                var resp = response.data;
+                var chart=[];
+                if (resp.length > 0) {
+
+                    var dt = moment(resp[0].date).format("YYYY-MM-DD");
+
+
+                    for (var j = 0; j < resp.length; j++) {
+
+                        if (dt == moment(resp[j].date).format("YYYY-MM-DD")) {
+
+                           chart.push(resp[j]);
+                        } else {
+
+                            break;
+                        }
+                    }
+                }
+                data[i].chart=chart;
+
+            }
+
+
+
+            res.json({success: true, data: data});
 
         })
         .catch((error) => {

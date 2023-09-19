@@ -59,9 +59,8 @@ const upload = multer({dest: 'uploads/'});
 // Replace <your_mongodb_uri> with your actual MongoDB URI
 
 
-const mongoUri = "mongodb://tradefuel:password@68.178.170.233:27017/tradefuel";
-//const mongoUri = "mongodb://hardie:Frustrate_90@68.178.170.233:27017/tradefuel";
-//const mongoUri = "mongodb://localhost:27017/tradefuel";
+//const mongoUri = "mongodb://tradefuel:password@68.178.170.233:27017/tradefuel";
+const mongoUri = "mongodb://localhost:27017/tradefuel";
 const SECRET_KEY = "3f3d3a8abf6011e227bc3c3d3a8abf6011e227bc3c3d3a8abf6011e227bc3c3d";
 //const mongoUri = process.env.MONGODB_SERVER;
 //const SECRET_KEY = process.env.SECRET_KEY;
@@ -115,14 +114,25 @@ const cacheMiddleware = async (req, res, next) => {
 
 app.use('/fetchIntradayData', cacheMiddleware);
 app.use('/fetchCurrentPrice', cacheMiddleware);
+app.use('/searchStock', cacheMiddleware);
+app.use('/watchlist/fetch', cacheMiddleware);
+app.use('/fetchStockDetails', cacheMiddleware);
+app.use('/fetchPortfolio', cacheMiddleware);
+app.use('/fetchTrandingStocks', cacheMiddleware);
 
 app.post('/fetchCurrentPrice', stocks.fetchCurrentPrice);
 app.post('/fetchIntradayData', stocks.fetchIntradayData);
 
+app.post('/fetchPortfolio', stocks.fetchPortfolio);
+app.post('/fetchTrandingStocks', stocks.fetchTrandingStocks);
 
 
 app.post('/fetchIntradayDataDhan', stocks.fetchIntradayData);
 app.post('/fetchHistoricalData', stocks.fetchIntradayData);
+
+app.post('/watchlist/toggle', stocks.toggleStockWatchList);
+app.post('/watchlist/fetch', stocks.fetchWatchlist);
+app.post('/watchlist/verify', stocks.verifyWatchlist);
 
 app.get('/import/bse', stocks.importBSEStocksCSV);
 app.get('/import/nse', stocks.importNSEStocksCSV);
