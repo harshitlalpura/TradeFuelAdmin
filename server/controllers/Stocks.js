@@ -321,7 +321,17 @@ exports.processTransaction = async (req, res) => {
 
         var type = req.body.type;
 
-        let price = parseFloat(req.body.price.replace("₹", ""));
+
+
+        console.log(req.body);
+        let price =0;
+
+        if(req.body.marketPrice) {
+
+            price = req.body.marketPrice;
+        }else{
+            price = parseFloat(req.body.price.replace("₹", ""));
+        }
         let avgPrice = 0;
 
         if (portfolio != null) {
