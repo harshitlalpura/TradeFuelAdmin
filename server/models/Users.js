@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
     user_email: {type: String, default: ""},
     user_phone: {type: String, default: ""},
     user_subscription: {type: String, default: ""},
-    user_balance: {type: Number, default: 10000},
+    user_balance: {type: Number, default: 50000},
     user_notification_token: [{type: String}],
     user_created_at: {type: Date, default: moment.tz('UTC').toDate()},
     user_block: {type: Boolean, default: false},
