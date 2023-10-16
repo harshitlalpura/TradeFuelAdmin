@@ -113,6 +113,9 @@ const cacheMiddleware = async (req, res, next) => {
 }
 
 app.use('/fetchIntradayData', cacheMiddleware);
+app.use('/fetchChart', cacheMiddleware);
+app.use('/fetchCandleChart', cacheMiddleware);
+
 app.use('/fetchCurrentPrice', cacheMiddleware);
 app.use('/searchStock', cacheMiddleware);
 app.use('/watchlist/fetch', cacheMiddleware);
@@ -122,6 +125,8 @@ app.use('/fetchTrandingStocks', cacheMiddleware);
 
 app.post('/fetchCurrentPrice', stocks.fetchCurrentPrice);
 app.post('/fetchIntradayData', stocks.fetchIntradayData);
+app.post('/fetchChart', stocks.fetchChart);
+app.post('/fetchCandleChart', stocks.fetchCandleChart);
 
 app.post('/fetchPortfolio', stocks.fetchPortfolio);
 app.post('/fetchTrandingStocks', stocks.fetchTrandingStocks);
@@ -130,6 +135,7 @@ app.post('/fetchTrandingStocks', stocks.fetchTrandingStocks);
 app.post('/fetchIntradayDataDhan', stocks.fetchIntradayData);
 app.post('/fetchHistoricalData', stocks.fetchIntradayData);
 
+app.post('/alert/set', stocks.setAlert);
 app.post('/watchlist/toggle', stocks.toggleStockWatchList);
 app.post('/watchlist/fetch', stocks.fetchWatchlist);
 app.post('/watchlist/verify', stocks.verifyWatchlist);
@@ -157,9 +163,9 @@ app.post('/verifyAdminEmail', authenticate, admin.verifyAdminEmail);
 var imageStorage = multer.diskStorage({
     destination: function (req, file, cb) {
         // cb(null, '/Users/harshit/Documents/workspace/React/StockTradingAdmin/public/uploads/');
-        cb(null, '/home/hashmedia/projects/tradefuel/public/uploads/');
+       // cb(null, '/home/hashmedia/projects/tradefuel/public/uploads/');
         //  cb(null, '/Users/manndave/Documents/Workspace/StockTradingAdmin/public/uploads/');
-        //  cb(null, '/home/ubuntu/StockTradingAdmin/public/uploads/')
+         cb(null, '/home/ubuntu/StockTradingAdmin/public/uploads/')
     },
     filename: function (req, file, cb) {
 

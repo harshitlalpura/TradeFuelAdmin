@@ -18,7 +18,16 @@ const UserSchema = new mongoose.Schema({
     user_watchlist: [{
         stock_symbol: {type: String, required: true},
         stock_name: {type: String, default: ""}
-    }]
+    }],
+    user_alerts: [{
+        stock_symbol: {type: String, required: true},
+        stock_name: {type: String, default: ""},
+        alert_amount:{type: Number, default: 0},
+        alert_amount_type: {type: String, default: ""},
+        alert_type: {type: String, default: ""},
+        alert_created_at: {type: Date, default: moment.tz('UTC').toDate()},
+    }],
+
 
 });
 

@@ -18,7 +18,7 @@ const cheerio = require("cheerio");
 
 exports.fetchTopGainers = async (req, res) => {
 
-   // console.log("G");
+    // console.log("G");
     const url = "https://www.google.com/finance/markets/gainers?hl=en";
     const response = await unirest.get(url).header({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"})
     const $ = cheerio.load(response.body);
@@ -138,7 +138,7 @@ exports.importBSEStocksCSV = async (req, res) => {
         .on('end', async () => {
             try {
 
-              //  console.log(stocksToInsert.length);
+                //  console.log(stocksToInsert.length);
 
                 if (stocksToInsert.length > 0) {
                     await Stocks.insertMany(stocksToInsert);
@@ -229,7 +229,7 @@ exports.fetchTransactions = async (req, res) => {
     try {
         const user_id = req.body.user_id;
 
-    //    console.log(req.body);
+        //    console.log(req.body);
 
 
         // Search in stockSymbol, companyName, and stockCode
@@ -256,20 +256,43 @@ exports.verifyWatchlist = async (req, res) => {
 
     const {stock_symbol, stock_name, userId} = req.body;
 
-   // console.log(stock_symbol + " " + userId);
+    console.log(stock_symbol + " " + userId);
 
     const user = await Users.findOne({_id: userId, user_trash: false});
 
 
     // Check if the symbol already exists in the watchlist
+
     const symbolExists = user.user_watchlist.some(entry => entry.stock_symbol === stock_symbol);
 
 
     res.json({
         success: true,
         isInWatchList: symbolExists,
-
     });
+
+
+};
+
+
+exports.setAlert = async (req, res) => {
+
+    const {stock_symbol, stock_name, userId, alert_amount, alert_amount_type, alert_type} = req.body;
+
+    const user = await Users.findById(userId);
+
+
+    // Check if the symbol already exists in the watchlist
+    const symbolExists = user.user_alerts.some(entry => entry.stock_symbol === stock_symbol);
+
+
+    // Add the new stock entry to the watchlist
+    user.user_alerts.push({stock_symbol, stock_name, alert_amount, alert_amount_type, alert_type});
+
+    // Save the user document with the updated watchlist
+    await user.save();
+
+    res.json({success: true, message: "Alert created!!!"});
 
 
 };
@@ -277,11 +300,24 @@ exports.verifyWatchlist = async (req, res) => {
 
 exports.fetchStockDetails = async (req, res) => {
 
-    const {symbol, name, userId} = req.body;
+    const {userId} = req.body;
 
-   // console.log(symbol + " " + userId);
+    const symbol = req.body.stock_symbol;
+    const name = req.body.stock_name;
+
+
+    // console.log(symbol + " " + userId);
 
     const user = await Users.findOne({_id: userId, user_trash: false});
+
+    const userAlerts = user.user_alerts.some(entry => entry.stock_symbol === symbol);
+
+    user.user_alerts = userAlerts;
+
+    // Check if the symbol already exists in the watchlist
+
+    const symbolExists = user.user_watchlist.some(entry => entry.stock_symbol === symbol);
+
 
     const portfolio = await Portfolio.findOne({
         userId: userId,
@@ -292,11 +328,36 @@ exports.fetchStockDetails = async (req, res) => {
     console.log(url);
     axios(url).then((response) => {
 
-        res.json({
-            success: true,
-            portfolio: portfolio,
-            data: response.data,
-            user: user
+        var url = process.env.FMP_API_BASE_URL + 'ratios/' + symbol + '?apikey=' + res.locals.stockAPIKey;
+        console.log(url);
+        axios(url).then((ratios) => {
+
+            if (ratios && ratios.data[0]) {
+                response.data[0].ratios = ratios.data[0];
+            }
+
+
+            var url = process.env.FMP_API_BASE_URL + 'market-capitalization/' + symbol + '?apikey=' + res.locals.stockAPIKey;
+            console.log(url);
+            axios(url).then((marketcap) => {
+
+
+                if (marketcap && marketcap.data[0]) {
+
+                    response.data[0].marketcap = marketcap.data[0];
+                }
+
+                console.log(response.data);
+                res.json({
+                    success: true,
+                    portfolio: portfolio,
+                    data: response.data,
+                    isInWatchList: symbolExists,
+                    user: user,
+
+                });
+            });
+
         });
 
     }).catch((error) => {
@@ -322,14 +383,13 @@ exports.processTransaction = async (req, res) => {
         var type = req.body.type;
 
 
-
         console.log(req.body);
-        let price =0;
+        let price = 0;
 
-        if(req.body.marketPrice) {
+        if (req.body.marketPrice) {
 
             price = req.body.marketPrice;
-        }else{
+        } else {
             price = parseFloat(req.body.price.replace("₹", ""));
         }
         let avgPrice = 0;
@@ -461,6 +521,7 @@ exports.processTransaction = async (req, res) => {
 
 exports.fetchIntradayData = async (req, res) => {
 
+    console.log(req.body.symbol);
     var url = process.env.FMP_API_BASE_URL + 'historical-chart/1min/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
 
 
@@ -495,6 +556,670 @@ exports.fetchIntradayData = async (req, res) => {
             console.error('Error:', error);
             res.json({success: false, error: error});
         });
+
+};
+
+
+exports.fetchChart = async (req, res) => {
+
+    var interval = req.body.interval;
+
+    if (interval == "1D") {
+        var url = process.env.FMP_API_BASE_URL + 'historical-chart/1min/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
+
+
+        console.log(url);
+        axios(url)
+            .then((response) => {
+
+
+                var resp = response.data;
+
+                var data = [];
+
+                if (resp.length > 0) {
+
+                    var dt = moment(resp[0].date).format("YYYY-MM-DD");
+
+                    for (var i = 0; i < resp.length; i++) {
+
+                        if (dt == moment(resp[i].date).format("YYYY-MM-DD")) {
+
+                            data.push(resp[i]);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                var chart = []
+
+                for (var i = 0; i < data.length; i++) {
+                    chart.push({timestamp: moment(data[i].date), value: data[i].close});
+                }
+
+
+                res.json({success: true, data: chart.reverse()});
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+    } else if (interval == "5D") {
+        var url = process.env.FMP_API_BASE_URL + 'historical-chart/1hour/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
+
+
+        console.log(url);
+        axios(url)
+            .then((response) => {
+
+
+                var resp = response.data;
+
+                var data = [];
+
+                if (resp.length > 0) {
+
+                    var dt = moment(resp[0].date).format("YYYY-MM-DD");
+
+                    var count = 0;
+                    for (var i = 0; i < resp.length; i++) {
+
+                        if (dt == moment(resp[i].date).format("YYYY-MM-DD")) {
+
+                            data.push(resp[i]);
+                        } else {
+                            dt = moment(resp[i].date).format("YYYY-MM-DD");
+                            count++;
+
+                            if (count >= 5) {
+
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                var chart = []
+
+                for (var i = 0; i < data.length; i++) {
+                    chart.push({timestamp: moment(data[i].date), value: data[i].close});
+                }
+
+
+                res.json({success: true, data: chart.reverse()});
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+    } else if (interval == "1M") {
+        var url = process.env.FMP_API_BASE_URL + 'historical-chart/1hour/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
+
+
+        console.log(url);
+        axios(url)
+            .then((response) => {
+
+
+                var resp = response.data;
+
+                var data = [];
+
+                if (resp.length > 0) {
+
+                    var dt = moment(resp[0].date);
+
+                    var count = 0;
+                    for (var i = 0; i < resp.length; i++) {
+
+                        if (dt.diff(moment(resp[i].date), 'months') < 1) {
+
+
+                            data.push(resp[i]);
+                        } else {
+
+
+                            break;
+
+                        }
+                    }
+                }
+
+                var chart = []
+
+                for (var i = 0; i < data.length; i++) {
+                    chart.push({timestamp: moment(data[i].date), value: data[i].close});
+                }
+
+
+                res.json({success: true, data: chart.reverse()});
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+    } else if (interval == "3M") {
+        var url = process.env.FMP_API_BASE_URL + 'historical-chart/1hour/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
+
+
+        console.log(url);
+        axios(url)
+            .then((response) => {
+
+
+                var resp = response.data;
+
+
+                var chart = [];
+
+
+                for (var i = 0; i < resp.length; i++) {
+                    chart.push({timestamp: moment(resp[i].date), value: resp[i].close});
+                }
+
+
+                res.json({success: true, data: chart.reverse()});
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+    } else if (interval == "1Y") {
+
+        const today = moment().format("YYYY-MM-DD"); // Current date and time
+        const oneYearAgo = moment().subtract(1, 'years').format("YYYY-MM-DD");
+        var url = process.env.FMP_API_BASE_URL + 'historical-price-full/' + req.body.symbol + '?from=' + oneYearAgo + '&to=' + today + '&apikey=' + res.locals.stockAPIKey;
+
+
+        console.log(url);
+        axios(url)
+            .then((response) => {
+
+
+                var resp = response.data.historical;
+
+                console.log("daTAENGTH", response.data.historical);
+
+                var chart = [];
+
+
+                for (var i = 0; i < resp.length; i++) {
+                    chart.push({timestamp: moment(resp[i].date), value: resp[i].close});
+                }
+
+
+                console.log("daTAENGTH", chart.length);
+                res.json({success: true, data: chart.reverse()});
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+    } else if (interval == "5Y") {
+
+        const today = moment().format("YYYY-MM-DD"); // Current date and time
+        const oneYearAgo = moment().subtract(5, 'years').format("YYYY-MM-DD");
+        var url = process.env.FMP_API_BASE_URL + 'historical-price-full/' + req.body.symbol + '?from=' + oneYearAgo + '&to=' + today + '&apikey=' + res.locals.stockAPIKey;
+
+
+        console.log(url);
+        axios(url)
+            .then((response) => {
+
+
+                var resp = response.data.historical;
+
+                console.log("daTAENGTH", response.data);
+                var chart = [];
+
+
+                for (var i = 0; i < resp.length; i++) {
+                    chart.push({timestamp: moment(resp[i].date), value: resp[i].close});
+                }
+
+                console.log("daTAENGTH", chart.length);
+                res.json({success: true, data: chart.reverse()});
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+    }
+
+};
+
+
+exports.fetchCandleChart = async (req, res) => {
+
+    var interval = req.body.interval;
+
+    if (interval == "1M") {
+        var url = process.env.FMP_API_BASE_URL + 'historical-chart/1min/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
+
+
+        console.log(url);
+        axios(url)
+            .then((response) => {
+
+
+                var resp = response.data;
+
+                var data = [];
+
+                if (resp.length > 0) {
+
+                    var dt = moment(resp[0].date).format("YYYY-MM-DD");
+
+                    for (var i = 0; i < resp.length; i++) {
+
+                        if (dt == moment(resp[i].date).format("YYYY-MM-DD")) {
+
+                            data.push(resp[i]);
+                        } else {
+                            break;
+                        }
+                    }
+                }
+
+                var chart = []
+
+                data.reverse();
+
+                var dates = [];
+                var datapoints = [];
+
+                for (var i = 0; i < data.length; i++) {
+                    datapoints.push([
+                        data[i].open,
+                        data[i].close,
+                        data[i].low,
+                        data[i].high,
+
+
+                    ]);
+
+                    dates.push(moment(data[i].date).format("HH:mm:ss"));
+
+
+                }
+
+
+                res.json({success: true, data: {dates: dates, data: datapoints}});
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+    } else if (interval == "2M" || interval == "3M" || interval == "4M") {
+        var url = process.env.FMP_API_BASE_URL + 'historical-chart/1min/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
+
+
+        console.log(url);
+        axios(url)
+            .then((response) => {
+
+
+                var resp = response.data;
+
+                var data = [];
+
+                if (resp.length > 0) {
+
+                    var dt = moment(resp[0].date).format("YYYY-MM-DD");
+
+                    var time = moment(resp[0].date);
+
+                    var qty = 2;
+                    var unit = "minutes";
+
+                    if (interval == "3M") {
+                        qty = 3;
+
+                    } else if (interval == "4M") {
+                        qty = 4;
+                    }
+
+
+                    for (var i = 0; i < resp.length; i++) {
+
+                        if (dt == moment(resp[i].date).format("YYYY-MM-DD")) {
+
+
+                            console.log(moment(resp[i].date).format("YYYY-MM-DD HH:mm:ss") + " " + time.format("YYYY-MM-DD HH:mm:ss"));
+                            if (moment(resp[i].date).format("YYYY-MM-DD HH:mm:ss") == time.format("YYYY-MM-DD HH:mm:ss")) {
+                                data.push(resp[i]);
+
+
+                                time = time.subtract(qty, unit);
+                            }
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                //  console.log(data);
+
+                var chart = []
+
+                data.reverse();
+
+                var dates = [];
+                var datapoints = [];
+
+                for (var i = 0; i < data.length; i++) {
+                    datapoints.push([
+                        data[i].open,
+                        data[i].close,
+                        data[i].low,
+                        data[i].high,
+
+
+                    ]);
+
+                    dates.push(moment(data[i].date).format("HH:mm:ss"));
+
+
+                }
+
+
+                res.json({success: true, data: {dates: dates, data: datapoints}});
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+    } else if (interval == "5M" || interval == "10M") {
+        var url = process.env.FMP_API_BASE_URL + 'historical-chart/5min/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
+
+
+        console.log(url);
+        axios(url)
+            .then((response) => {
+
+
+                var resp = response.data;
+
+                var data = [];
+
+                if (resp.length > 0) {
+
+                    var dt = moment(resp[0].date).format("YYYY-MM-DD");
+
+                    var time = moment(resp[0].date);
+
+                    var qty = 5;
+                    var unit = "minutes";
+
+                    if (interval == "10M") {
+                        qty = 10;
+                    }
+
+                    console.log("INTERVAL", qty);
+                    //data.push(resp[0]);
+                    // time = time.subtract(qty, unit);
+                    for (var i = 0; i < resp.length; i++) {
+
+                        if (dt == moment(resp[i].date).format("YYYY-MM-DD")) {
+
+                            if (moment(resp[i].date).format("YYYY-MM-DD HH:mm:ss") == time.format("YYYY-MM-DD HH:mm:ss")) {
+                                data.push(resp[i]);
+                                time = time.subtract(qty, unit);
+                            }
+                        } else {
+                            data.push(resp[i]);
+                            dt = moment(resp[i].date).format("YYYY-MM-DD");
+                            time = moment(resp[i].date);
+                            time = time.subtract(qty, unit);
+                        }
+                    }
+                }
+                console.log(data);
+
+                var chart = []
+
+
+                data.reverse();
+
+                var dates = [];
+                var datapoints = [];
+
+                for (var i = 0; i < data.length; i++) {
+                    datapoints.push([
+                        data[i].open,
+                        data[i].close,
+                        data[i].low,
+                        data[i].high,
+
+
+                    ]);
+
+                    dates.push(moment(data[i].date).format("YYYY-MM-DD\nHH:mm:ss"));
+
+
+                }
+
+
+                res.json({success: true, data: {dates: dates, data: datapoints}});
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+    } else if (interval == "15M" || interval == "30M") {
+
+        var url = "";
+        if (interval == "15M") {
+            url = process.env.FMP_API_BASE_URL + 'historical-chart/15min/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
+        } else {
+            url = process.env.FMP_API_BASE_URL + 'historical-chart/30min/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
+        }
+
+
+        console.log(url);
+        axios(url)
+            .then((response) => {
+
+
+                var resp = response.data;
+
+                var data = [];
+
+                if (resp.length > 0) {
+
+                    // var dt = moment(resp[0].date).format("YYYY-MM-DD");
+
+
+                    //data.push(resp[0]);
+                    // time = time.subtract(qty, unit);
+                    for (var i = 0; i < resp.length; i++) {
+
+
+                        data.push(resp[i]);
+
+                    }
+                }
+                console.log(data);
+
+                var chart = []
+
+
+                data.reverse();
+
+                var dates = [];
+                var datapoints = [];
+
+                for (var i = 0; i < data.length; i++) {
+                    datapoints.push([
+                        data[i].open,
+                        data[i].close,
+                        data[i].low,
+                        data[i].high,
+
+
+                    ]);
+
+                    dates.push(moment(data[i].date).format("YYYY-MM-DD\nHH:mm:ss"));
+
+
+                }
+
+
+                res.json({success: true, data: {dates: dates, data: datapoints}});
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+    } else if (interval == "1H" || interval == "2H" || interval == "3H") {
+        var url = process.env.FMP_API_BASE_URL + 'historical-chart/1hour/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
+
+
+        console.log(url);
+        axios(url)
+            .then((response) => {
+
+
+                var resp = response.data;
+
+                var data = [];
+
+                if (resp.length > 0) {
+
+                    var dt = moment(resp[0].date).format("YYYY-MM-DD");
+
+                    var time = moment(resp[0].date);
+
+                    var qty = 1;
+                    var unit = "hours";
+
+                    if (interval == "2H") {
+                        qty = 2;
+                    } else if (interval == "3H") {
+                        qty = 3;
+                    }
+
+
+                    console.log("INTERVAL", qty);
+                    //data.push(resp[0]);
+                    // time = time.subtract(qty, unit);
+                    for (var i = 0; i < resp.length; i++) {
+
+                        if (dt == moment(resp[i].date).format("YYYY-MM-DD")) {
+
+                            if (moment(resp[i].date).format("YYYY-MM-DD HH:mm:ss") == time.format("YYYY-MM-DD HH:mm:ss")) {
+                                data.push(resp[i]);
+                                time = time.subtract(qty, unit);
+                            }
+                        } else {
+                            data.push(resp[i]);
+                            dt = moment(resp[i].date).format("YYYY-MM-DD");
+                            time = moment(resp[i].date);
+                            time = time.subtract(qty, unit);
+                        }
+                    }
+                }
+                console.log(data);
+
+                var chart = []
+
+
+                data.reverse();
+
+                var dates = [];
+                var datapoints = [];
+
+                for (var i = 0; i < data.length; i++) {
+                    datapoints.push([
+                        data[i].open,
+                        data[i].close,
+                        data[i].low,
+                        data[i].high,
+
+
+                    ]);
+
+                    dates.push(moment(data[i].date).format("YYYY-MM-DD\nHH:mm:ss"));
+
+
+                }
+
+
+                res.json({success: true, data: {dates: dates, data: datapoints}});
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+    } else if (interval == "1D" || interval == "1W" || interval == "1Mo") {
+        var url = process.env.FMP_API_BASE_URL + '/historical-price-full/' + req.body.symbol + '?from=2019-01-01&to=2023-10-13&apikey=' + res.locals.stockAPIKey;
+
+
+        console.log(url);
+        axios(url)
+            .then((response) => {
+
+
+                var resp = response.data.historical;
+
+                var data = [];
+
+                if (resp.length > 0) {
+
+                    var dt = moment(resp[0].date).format("YYYY-MM-DD");
+
+                    var time = moment(resp[0].date);
+
+                    var qty = 1;
+                    var unit = "days";
+
+                    if (interval == "1W") {
+                        qty = 7;
+                    } else if (interval == "1Mo") {
+                        qty = 30;
+                    }
+
+
+                    console.log("INTERVAL", qty);
+                    //data.push(resp[0]);
+                    // time = time.subtract(qty, unit);
+                    for (var i = 0; i < resp.length; i = i + qty) {
+                        data.push(resp[i]);
+                    }
+                }
+                console.log(data);
+
+                var chart = []
+
+                data.reverse();
+
+                var dates = [];
+                var datapoints = [];
+
+                for (var i = 0; i < data.length; i++) {
+                    datapoints.push([
+                        data[i].open,
+                        data[i].close,
+                        data[i].low,
+                        data[i].high,
+
+
+                    ]);
+
+                    dates.push(moment(data[i].date).format("YYYY-MM-DD"));
+
+
+                }
+
+
+                res.json({success: true, data: {dates: dates, data: datapoints}});
+
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                res.json({success: false, error: error});
+            });
+    }
 
 };
 
@@ -622,7 +1347,9 @@ exports.fetchPortfolio = async (req, res) => {
             userId: userId,
         });
 
-       // console.log(portfolio);
+        const user = await Users.findById(req.body.userId);
+
+        // console.log(portfolio);
 
         if (portfolio && portfolio.length > 0) {
             const symbols = portfolio.map(entry => entry.stockSymbol);
@@ -643,6 +1370,7 @@ exports.fetchPortfolio = async (req, res) => {
 
                     res.json({
                         success: true,
+                        user: user,
                         data: response.data,
                         portfolio: portfolio,
                         totalPortfolioValue: totalPortfolio.totalPortfolioValue,
@@ -700,14 +1428,14 @@ exports.fetchTrandingStocks = async (req, res) => {
 
             for (var i = 0; i < data.length; i++) {
 
-                var url = process.env.FMP_API_BASE_URL + 'historical-chart/5min/' +data[i].symbol + '?apikey=' + res.locals.stockAPIKey;
+                var url = process.env.FMP_API_BASE_URL + 'historical-chart/5min/' + data[i].symbol + '?apikey=' + res.locals.stockAPIKey;
 
 
                 console.log(url);
                 const response = await axios(url);
 
                 var resp = response.data;
-                var chart=[];
+                var chart = [];
                 if (resp.length > 0) {
 
                     var dt = moment(resp[0].date).format("YYYY-MM-DD");
@@ -717,17 +1445,16 @@ exports.fetchTrandingStocks = async (req, res) => {
 
                         if (dt == moment(resp[j].date).format("YYYY-MM-DD")) {
 
-                           chart.push(resp[j]);
+                            chart.push(resp[j]);
                         } else {
 
                             break;
                         }
                     }
                 }
-                data[i].chart=chart;
+                data[i].chart = chart.reverse();
 
             }
-
 
 
             res.json({success: true, data: data});
