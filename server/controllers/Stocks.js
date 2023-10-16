@@ -1384,7 +1384,14 @@ exports.fetchPortfolio = async (req, res) => {
                 });
 
         } else {
-            res.json({success: true, data: []});
+            res.json({
+                success: true,
+                user: user,
+                data: [],
+                portfolio: [],
+                totalPortfolioValue:0,
+                totalPortfolioChange: 0,
+            });
         }
 
     } catch (error) {

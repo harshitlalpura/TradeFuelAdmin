@@ -326,7 +326,7 @@ class UserProfile extends React.Component {
                                             <Datatable
                                                 tableHeader={header}
 
-                                                tableBody={transactions.map((row) => ({
+                                                tableBody={transactions && transactions.length>0 && transactions.map((row) => ({
                                                     ...row,
                                                     txn_type: <TxnType {...row} />,
                                                     view: <ViewButton {...row}/>
