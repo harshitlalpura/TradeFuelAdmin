@@ -310,10 +310,18 @@ exports.fetchStockDetails = async (req, res) => {
 
     const user = await Users.findOne({_id: userId, user_trash: false});
 
-    const userAlerts = user.user_alerts.some(entry => entry.stock_symbol === symbol);
+    if (user && user.user_alerts) {
+        const userAlerts = user.user_alerts.some(entry => entry.stock_symbol === symbol);
 
-    user.user_alerts = userAlerts;
 
+        if(userAlerts) {
+            user.user_alerts = userAlerts;
+        }else{
+            user.user_alerts = [];
+        }
+    }else{
+        user.user_alerts = [];
+    }
     // Check if the symbol already exists in the watchlist
 
     const symbolExists = user.user_watchlist.some(entry => entry.stock_symbol === symbol);
@@ -1389,7 +1397,7 @@ exports.fetchPortfolio = async (req, res) => {
                 user: user,
                 data: [],
                 portfolio: [],
-                totalPortfolioValue:0,
+                totalPortfolioValue: 0,
                 totalPortfolioChange: 0,
             });
         }
