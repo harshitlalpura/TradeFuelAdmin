@@ -311,7 +311,7 @@ exports.fetchStockDetails = async (req, res) => {
     const user = await Users.findOne({_id: userId, user_trash: false});
     //
     if (user && user.user_alerts) {
-        const userAlerts = user.user_alerts.some(entry => entry.stock_symbol === symbol);
+        const userAlerts = user.user_alerts.filter(entry => entry.stock_symbol == symbol);
 
 
         if (userAlerts) {
@@ -385,13 +385,14 @@ exports.fetchAlerts = async (req, res) => {
     const name = req.body.stock_name;
 
 
-    // console.log(symbol + " " + userId);
+     console.log(symbol + " " + userId);
 
     const user = await Users.findOne({_id: userId, user_trash: false});
 
     if (user && user.user_alerts) {
-        const userAlerts = user.user_alerts.some(entry => entry.stock_symbol === symbol);
+        const userAlerts = user.user_alerts.filter(entry => entry.stock_symbol == symbol);
 
+        console.log(userAlerts);
 
         if (userAlerts) {
             user.user_alerts = userAlerts;
