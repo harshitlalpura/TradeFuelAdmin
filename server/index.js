@@ -144,6 +144,7 @@ app.get('/import/bse', stocks.importBSEStocksCSV);
 app.get('/import/nse', stocks.importNSEStocksCSV);
 app.post('/searchStock', stocks.searchStock);
 app.post('/fetchStockDetails', stocks.fetchStockDetails);
+app.post('/fetchAlerts', stocks.fetchAlerts);
 app.post('/processTransaction', stocks.processTransaction);
 app.post('/fetchTransactions', stocks.fetchTransactions);
 app.get('/fetchTopGainers', stocks.fetchTopGainers);
