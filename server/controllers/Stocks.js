@@ -310,18 +310,18 @@ exports.fetchStockDetails = async (req, res) => {
 
     const user = await Users.findOne({_id: userId, user_trash: false});
     //
-    // if (user && user.user_alerts) {
-    //     const userAlerts = user.user_alerts.some(entry => entry.stock_symbol === symbol);
-    //
-    //
-    //     if (userAlerts) {
-    //         user.user_alerts = userAlerts;
-    //     } else {
-    //         user.user_alerts = [];
-    //     }
-    // } else {
-    //     user.user_alerts = [];
-    // }
+    if (user && user.user_alerts) {
+        const userAlerts = user.user_alerts.some(entry => entry.stock_symbol === symbol);
+
+
+        if (userAlerts) {
+            user.user_alerts = userAlerts;
+        } else {
+            user.user_alerts = [];
+        }
+    } else {
+        user.user_alerts = [];
+    }
     // // Check if the symbol already exists in the watchlist
 
     const symbolExists = user.user_watchlist.some(entry => entry.stock_symbol === symbol);
