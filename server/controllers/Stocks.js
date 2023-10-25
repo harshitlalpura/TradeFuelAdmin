@@ -385,7 +385,7 @@ exports.fetchAlerts = async (req, res) => {
     const name = req.body.stock_name;
 
 
-     console.log(symbol + " " + userId);
+    console.log(symbol + " " + userId);
 
     const user = await Users.findOne({_id: userId, user_trash: false});
 
@@ -837,6 +837,7 @@ exports.fetchCandleChart = async (req, res) => {
 
     var interval = req.body.interval;
 
+    var volumes=[];
     if (interval == "1M") {
         var url = process.env.FMP_API_BASE_URL + 'historical-chart/1min/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
 
@@ -871,24 +872,22 @@ exports.fetchCandleChart = async (req, res) => {
 
                 var dates = [];
                 var datapoints = [];
-
                 for (var i = 0; i < data.length; i++) {
                     datapoints.push([
                         data[i].open,
                         data[i].close,
                         data[i].low,
                         data[i].high,
-
-
                     ]);
-
+                    //  volumes.push([i, data[i].volume, data[i].open > data[i].close ? 1 : -1]);
+                    volumes.push(data[i].volume);
                     dates.push(moment(data[i].date).format("HH:mm:ss"));
 
 
                 }
 
 
-                res.json({success: true, data: {dates: dates, data: datapoints}});
+                res.json({success: true, data: {dates: dates, data: datapoints, volumes: volumes}});
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -959,14 +958,14 @@ exports.fetchCandleChart = async (req, res) => {
 
 
                     ]);
-
+                    volumes.push(data[i].volume);
                     dates.push(moment(data[i].date).format("HH:mm:ss"));
 
 
                 }
 
 
-                res.json({success: true, data: {dates: dates, data: datapoints}});
+                res.json({success: true, data: {dates: dates, data: datapoints,volumes:volumes}});
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -1036,14 +1035,14 @@ exports.fetchCandleChart = async (req, res) => {
 
 
                     ]);
-
+                    volumes.push(data[i].volume);
                     dates.push(moment(data[i].date).format("YYYY-MM-DD\nHH:mm:ss"));
 
 
                 }
 
 
-                res.json({success: true, data: {dates: dates, data: datapoints}});
+                res.json({success: true, data: {dates: dates, data: datapoints,volumes:volumes}});
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -1101,14 +1100,14 @@ exports.fetchCandleChart = async (req, res) => {
 
 
                     ]);
-
+                    volumes.push(data[i].volume);
                     dates.push(moment(data[i].date).format("YYYY-MM-DD\nHH:mm:ss"));
 
 
                 }
 
 
-                res.json({success: true, data: {dates: dates, data: datapoints}});
+                res.json({success: true, data: {dates: dates, data: datapoints,volumes:volumes}});
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -1181,14 +1180,14 @@ exports.fetchCandleChart = async (req, res) => {
 
 
                     ]);
-
+                    volumes.push(data[i].volume);
                     dates.push(moment(data[i].date).format("YYYY-MM-DD\nHH:mm:ss"));
 
 
                 }
 
 
-                res.json({success: true, data: {dates: dates, data: datapoints}});
+                res.json({success: true, data: {dates: dates, data: datapoints,volumes:volumes}});
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -1249,13 +1248,15 @@ exports.fetchCandleChart = async (req, res) => {
 
                     ]);
 
+                    volumes.push(data[i].volume);
+
                     dates.push(moment(data[i].date).format("YYYY-MM-DD"));
 
 
                 }
 
 
-                res.json({success: true, data: {dates: dates, data: datapoints}});
+                res.json({success: true, data: {dates: dates, data: datapoints,volumes:volumes}});
 
             })
             .catch((error) => {
