@@ -8,6 +8,7 @@ const {getNextSequence} = require("mongodb-autoincrement");
 const Admins = require("../models/Admins");
 const News = require("../models/News");
 const Learn = require("../models/Learn");
+const Transactions = require("../models/Transactions");
 
 require('dotenv').config();
 const SECRET_KEY = process.env.REACT_APP_SECRET_KEY;
@@ -111,7 +112,6 @@ exports.loginUser = async (req, res) => {
                 const token = jwt.sign({id: users._id}, SECRET_KEY);
 
 
-
                 res.json({status: 1, data: users});
             }
         } else {
@@ -203,7 +203,173 @@ exports.updateNotificationToken = async (req, res) => {
     }
 };
 
+exports.fetchLeaderboardByEarnings = async (req, res) => {
 
+    try {
+        let fromDate = req.body.fromDate;
+        let toDate = req.body.toDate;
+        console.log(req.body.time,fromDate,toDate);
+
+        if (req.body.time == "D") {
+
+            toDate = fromDate;
+
+
+            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
+            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+
+        } else if (req.body.time == "W") {
+
+            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
+            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+        } else if (req.body.time == "M") {
+
+            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
+            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+        } else if (req.body.time == "C") {
+
+            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
+            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+        }
+
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(23, 59, 59, 999);
+
+        console.log(fromDate,toDate);
+
+        const result = await Transactions.aggregate([
+            {
+                $match: {
+                    transactionType: 'S',
+                    createdAt: {
+                        $gte: fromDate,
+                        $lte: toDate
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: '$userId',
+                    totalProfit: {$sum: '$profit'}
+                }
+            },
+            {
+                $sort: {
+                    totalProfit: -1
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users', // The name of the users collection
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            {
+                $unwind: '$user' // Unwind the user array created by $lookup
+            },
+            {
+                $project: {
+                    _id: 1,
+                    totalProfit: 1,
+                    user_name: '$user.user_name' // Assuming 'user_name' is the field in the users collection
+                }
+            }
+        ]);
+
+        console.log(result);
+        res.json({success: true, data: result});
+
+    } catch (error) {
+        console.error(error);
+        res.json({success: false, error: error});
+    }
+}
+exports.fetchLeaderboardByVolume = async (req, res) => {
+
+    try {
+        // Get the current date
+
+
+        let fromDate = req.body.fromDate;
+        let toDate = req.body.toDate;
+        console.log(req.body.time,fromDate,toDate);
+
+        if (req.body.time == "D") {
+
+            toDate = fromDate;
+
+
+            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
+            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+
+        } else if (req.body.time == "W") {
+
+            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
+            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+        } else if (req.body.time == "M") {
+
+            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
+            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+        }else if (req.body.time == "C") {
+
+            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
+            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+        }
+
+        fromDate.setHours(0, 0, 0, 0);
+        toDate.setHours(23, 59, 59, 999);
+
+        console.log(fromDate,toDate);
+
+        const result = await Transactions.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: fromDate,
+                        $lte: toDate
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: '$userId',
+                    totalQuantity: {$sum: '$quantity'}
+                }
+            },
+            {
+                $sort: {
+                    totalQuantity: -1
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users', // The name of the users collection
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            {
+                $unwind: '$user' // Unwind the user array created by $lookup
+            },
+            {
+                $project: {
+                    _id: 1,
+                    totalQuantity: 1,
+                    user_name: '$user.user_name' // Assuming 'user_name' is the field in the users collection
+                }
+            }
+        ]);
+
+        console.log(result);
+        res.json({success: true, data: result});
+    } catch (error) {
+        console.error(error);
+        res.json({success: false, error: error});
+    }
+}
 exports.updateUser = async (req, res) => {
     try {
         console.log(req.body);
@@ -231,7 +397,7 @@ exports.updateUser = async (req, res) => {
                 return res.status(404).json({error: 'User not found'});
             }
 
-            res.status(200).json({status: 1,message: 'User updated successfully', user: updatedUser});
+            res.status(200).json({status: 1, message: 'User updated successfully', user: updatedUser});
         } else {
             res.json({status: 0, message: "Phone Number already exists."});
 

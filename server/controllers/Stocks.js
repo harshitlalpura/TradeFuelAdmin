@@ -20,7 +20,9 @@ exports.fetchTopGainers = async (req, res) => {
 
     // console.log("G");
     const url = "https://www.google.com/finance/markets/gainers?hl=en";
+    console.log(url);
     const response = await unirest.get(url).header({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"})
+
     const $ = cheerio.load(response.body);
     let topGainers = [];
     $(".hyO8N .SxcTic").each((i, el) => {
@@ -42,6 +44,7 @@ exports.fetchTopLosers = async (req, res) => {
 
     //console.log("L");
     const url = "https://www.google.com/finance/markets/losers?hl=en";
+    console.log(url);
     const response = await unirest.get(url).header({"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36"})
     const $ = cheerio.load(response.body);
     let topLosers = [];
@@ -55,6 +58,7 @@ exports.fetchTopLosers = async (req, res) => {
         })
     })
 
+    console.log("LOSERS",topLosers);
     res.status(200).json({status: 1, data: topLosers});
 }
 
@@ -414,7 +418,7 @@ exports.fetchAlerts = async (req, res) => {
 
 exports.processTransaction = async (req, res) => {
     try {
-
+        console.log(req.body);
 
         const portfolio = await Portfolio.findOne({
             userId: req.body.userId,
@@ -426,7 +430,6 @@ exports.processTransaction = async (req, res) => {
         var type = req.body.type;
 
 
-        console.log(req.body);
         let price = 0;
 
         if (req.body.marketPrice) {
@@ -435,16 +438,6 @@ exports.processTransaction = async (req, res) => {
         } else {
             price = parseFloat(req.body.price.replace("₹", ""));
         }
-        let avgPrice = 0;
-
-        if (portfolio != null) {
-            avgPrice = (portfolio.averagePrice + price) / 2;
-        } else {
-            avgPrice = price;
-        }
-
-        //console.log(users);
-        //console.log(req.body);
 
         if (type == "B") {
 
@@ -461,19 +454,30 @@ exports.processTransaction = async (req, res) => {
                     {$inc: {user_balance: -((parseInt(req.body.quantity) * price))}}  // Using $inc to decrement
                 );
 
+                let totalInvested = 0;
+                let newQuantity = 0;
+                let newAveragePrice = 0;
+                if (portfolio != null) {
+                    totalInvested = portfolio.totalInvested + (parseInt(req.body.quantity) * price);
+                    newQuantity = portfolio.quantity + parseInt(req.body.quantity);
+                    newAveragePrice = totalInvested / newQuantity;
+                } else {
+                    totalInvested = (parseInt(req.body.quantity) * price);
+                    newQuantity = parseInt(req.body.quantity);
+                    newAveragePrice = totalInvested / newQuantity;
+                }
+
                 const updateResult = await Portfolio.updateOne(
                     {
                         userId: req.body.userId,
                         stockSymbol: req.body.symbol,
                     },
                     {
-                        $inc: {
-                            quantity: parseInt(req.body.quantity),
-                            totalInvested: (parseInt(req.body.quantity) * price)
-                        },  // Increment the quantity.
                         $set: {
                             stockSymbol: req.body.symbol,
-                            averagePrice: avgPrice,
+                            averagePrice: newAveragePrice,
+                            quantity: newQuantity,
+                            totalInvested: totalInvested
 
                         }  // Set stockSymbol (has no effect if document already exists).
                     },
@@ -488,6 +492,7 @@ exports.processTransaction = async (req, res) => {
                     transactionType: 'B',
                     stockSymbol: req.body.symbol,
                     quantity: parseInt(req.body.quantity),
+                    buyPrice: price,
                     amount: (parseInt(req.body.quantity) * price) // e.g., $50 per stock
                 });
                 newTransaction.save()
@@ -514,38 +519,54 @@ exports.processTransaction = async (req, res) => {
                         stockSymbol: req.body.symbol
                     });
 
+                } else if (portfolio.quantity < parseInt(req.body.quantity)) {
+
+
+                    res.status(200).json({success: false, message: "You don't have quantity in your portfolio."});
+
+
                 } else {
 
+
+                    const newQuantity = portfolio.quantity - parseInt(req.body.quantity);
+                    const totalInvested = portfolio.averagePrice * newQuantity;
+                    // let newAveragePrice = newQuantity === 0 ? 0 : totalInvested / newQuantity;
+
+                    const profit = (price - portfolio.averagePrice) * parseInt(req.body.quantity);
+
+                    const remainingCost = portfolio.totalInvested - profit;
+                    const newAveragePrice = remainingCost / newQuantity;
                     const updateResult = await Portfolio.updateOne(
                         {
                             userId: req.body.userId,
                             stockSymbol: req.body.symbol,
                         },
                         {
-                            $inc: {
-                                quantity: -parseInt(req.body.quantity),
-                                totalInvested: -(parseInt(req.body.quantity) * price)
-                            },  // Increment the quantity.
-                            $set: {stockSymbol: req.body.symbol}  // Set stockSymbol (has no effect if document already exists).
+                            $set: {
+                                quantity: newQuantity,
+                                totalInvested: remainingCost,
+                                averagePrice: newAveragePrice
+                            }  // Set stockSymbol (has no effect if document already exists).
                         }
                     );
 
                     console.log(updateResult);
 
+                    const newTransaction = new Transactions({
+                        userId: req.body.userId,
+                        transactionType: 'S',
+                        stockSymbol: req.body.symbol,
+                        quantity: parseInt(req.body.quantity),
+                        amount: (parseInt(req.body.quantity) * price),
+                        profit: profit// e.g., $50 per stock
+                    });
+                    newTransaction.save()
+                        .then(() => console.log("Transaction saved successfully!"))
+                        .catch(err => console.error("Error saving transaction:", err));
+
+                    res.status(200).json({success: true, message: ""});
                 }
 
-                const newTransaction = new Transactions({
-                    userId: req.body.userId,
-                    transactionType: 'S',
-                    stockSymbol: req.body.symbol,
-                    quantity: parseInt(req.body.quantity),
-                    amount: (parseInt(req.body.quantity) * price) // e.g., $50 per stock
-                });
-                newTransaction.save()
-                    .then(() => console.log("Transaction saved successfully!"))
-                    .catch(err => console.error("Error saving transaction:", err));
-
-                res.status(200).json({success: true, message: ""});
 
             } else {
 
@@ -837,7 +858,7 @@ exports.fetchCandleChart = async (req, res) => {
 
     var interval = req.body.interval;
 
-    var volumes=[];
+    var volumes = [];
     if (interval == "1M") {
         var url = process.env.FMP_API_BASE_URL + 'historical-chart/1min/' + req.body.symbol + '?apikey=' + res.locals.stockAPIKey;
 
@@ -965,7 +986,7 @@ exports.fetchCandleChart = async (req, res) => {
                 }
 
 
-                res.json({success: true, data: {dates: dates, data: datapoints,volumes:volumes}});
+                res.json({success: true, data: {dates: dates, data: datapoints, volumes: volumes}});
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -1042,7 +1063,7 @@ exports.fetchCandleChart = async (req, res) => {
                 }
 
 
-                res.json({success: true, data: {dates: dates, data: datapoints,volumes:volumes}});
+                res.json({success: true, data: {dates: dates, data: datapoints, volumes: volumes}});
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -1107,7 +1128,7 @@ exports.fetchCandleChart = async (req, res) => {
                 }
 
 
-                res.json({success: true, data: {dates: dates, data: datapoints,volumes:volumes}});
+                res.json({success: true, data: {dates: dates, data: datapoints, volumes: volumes}});
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -1187,7 +1208,7 @@ exports.fetchCandleChart = async (req, res) => {
                 }
 
 
-                res.json({success: true, data: {dates: dates, data: datapoints,volumes:volumes}});
+                res.json({success: true, data: {dates: dates, data: datapoints, volumes: volumes}});
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -1256,7 +1277,7 @@ exports.fetchCandleChart = async (req, res) => {
                 }
 
 
-                res.json({success: true, data: {dates: dates, data: datapoints,volumes:volumes}});
+                res.json({success: true, data: {dates: dates, data: datapoints, volumes: volumes}});
 
             })
             .catch((error) => {

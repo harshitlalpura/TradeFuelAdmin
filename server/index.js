@@ -123,6 +123,8 @@ app.use('/fetchStockDetails', cacheMiddleware);
 app.use('/fetchPortfolio', cacheMiddleware);
 app.use('/fetchTrandingStocks', cacheMiddleware);
 
+app.post('/fetchLeaderboardByEarnings', user.fetchLeaderboardByEarnings);
+app.post('/fetchLeaderboardByVolume', user.fetchLeaderboardByVolume);
 app.post('/fetchCurrentPrice', stocks.fetchCurrentPrice);
 app.post('/fetchIntradayData', stocks.fetchIntradayData);
 app.post('/fetchChart', stocks.fetchChart);

@@ -25,6 +25,11 @@ const transactionSchema = new mongoose.Schema({
         required: true,
         default: 0
     },
+    profit:{
+        type: Number,
+        required: false,
+        default: 0
+    }
 }, {
     timestamps: true  // this will automatically add createdAt and updatedAt fields
 });
