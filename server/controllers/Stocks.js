@@ -1538,3 +1538,56 @@ exports.fetchTrandingStocks = async (req, res) => {
         });
 
 };
+
+
+exports.fetchWorldIndices = async (req, res) => {
+
+    var url = process.env.FMP_API_BASE_URL + 'quote/^GSPC,^NDX,^W1DOW,^N225,^FTSE,^GDAXI,^FCHI,^FTSEMIB.MI,^HSI?apikey=' + res.locals.stockAPIKey;
+//https://fmpcloud.io/api/v3/stock-screener?limit=5&country=IN&isActivelyTrading=true&apikey=5b4ae5a2feea1ab3797342fd287cfc92
+//https://fmpcloud.io/api/v3/quote/^GSPC?apikey=5b4ae5a2feea1ab3797342fd287cfc92
+    console.log(url);
+    axios(url)
+        .then(async (response) => {
+
+            let data = response.data;
+
+            for (var i = 0; i < data.length; i++) {
+
+                var url = process.env.FMP_API_BASE_URL + 'historical-chart/5min/' + data[i].symbol + '?apikey=' + res.locals.stockAPIKey;
+
+
+                console.log(url);
+                const response = await axios(url);
+
+                var resp = response.data;
+                var chart = [];
+                if (resp.length > 0) {
+
+                    var dt = moment(resp[0].date).format("YYYY-MM-DD");
+
+
+                    for (var j = 0; j < resp.length; j++) {
+
+                        if (dt == moment(resp[j].date).format("YYYY-MM-DD")) {
+
+                            chart.push(resp[j]);
+                        } else {
+
+                            break;
+                        }
+                    }
+                }
+                data[i].chart = chart.reverse();
+
+            }
+
+
+            res.json({success: true, data: data});
+
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            res.json({success: false, error: error});
+        });
+
+};

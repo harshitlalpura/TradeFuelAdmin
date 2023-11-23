@@ -122,6 +122,7 @@ app.use('/watchlist/fetch', cacheMiddleware);
 app.use('/fetchStockDetails', cacheMiddleware);
 app.use('/fetchPortfolio', cacheMiddleware);
 app.use('/fetchTrandingStocks', cacheMiddleware);
+app.use('/fetchWorldIndices', cacheMiddleware);
 
 app.post('/fetchLeaderboardByEarnings', user.fetchLeaderboardByEarnings);
 app.post('/fetchLeaderboardByVolume', user.fetchLeaderboardByVolume);
@@ -132,6 +133,7 @@ app.post('/fetchCandleChart', stocks.fetchCandleChart);
 
 app.post('/fetchPortfolio', stocks.fetchPortfolio);
 app.post('/fetchTrandingStocks', stocks.fetchTrandingStocks);
+app.post('/fetchWorldIndices', stocks.fetchWorldIndices);
 
 
 app.post('/fetchIntradayDataDhan', stocks.fetchIntradayData);
