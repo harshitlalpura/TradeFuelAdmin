@@ -1542,7 +1542,7 @@ exports.fetchTrandingStocks = async (req, res) => {
 
 exports.fetchWorldIndices = async (req, res) => {
 
-    var url = process.env.FMP_API_BASE_URL + 'quote/^GSPC,^NDX,^W1DOW,^N225,^FTSE,^GDAXI,^FCHI,^FTSEMIB.MI,^HSI?apikey=' + res.locals.stockAPIKey;
+    var url = process.env.FMP_API_BASE_URL + 'quote/^NSEI,^BSESN,^NSEBANK,^GSPC,^NDX,^W1DOW,^N225,^FTSE,^GDAXI,^FCHI,^FTSEMIB.MI,^HSI?apikey=' + res.locals.stockAPIKey;
 //https://fmpcloud.io/api/v3/stock-screener?limit=5&country=IN&isActivelyTrading=true&apikey=5b4ae5a2feea1ab3797342fd287cfc92
 //https://fmpcloud.io/api/v3/quote/^GSPC?apikey=5b4ae5a2feea1ab3797342fd287cfc92
     console.log(url);
