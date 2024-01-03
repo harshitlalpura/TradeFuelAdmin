@@ -24,6 +24,7 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 app.use(cors());
+
 app.use('/dashboard', express.static(path.join(__dirname, '..', 'build')));
 app.use('/login', express.static(path.join(__dirname, '..', 'build')));
 app.use('/subscriptions', express.static(path.join(__dirname, '..', 'build')));
@@ -47,6 +48,11 @@ app.use('/settings/paymentgateway', express.static(path.join(__dirname, '..', 'b
 app.use('/settings/stockmarket', express.static(path.join(__dirname, '..', 'build')));
 app.use('/settings/contactus', express.static(path.join(__dirname, '..', 'build')));
 app.use('/settings/maintenance', express.static(path.join(__dirname, '..', 'build')));
+
+
+
+
+
 
 //app.use(express.static('build'));
 app.use(express.static(path.join(__dirname, '..', 'build')));
