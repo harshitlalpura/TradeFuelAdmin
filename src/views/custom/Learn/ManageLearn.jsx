@@ -71,6 +71,7 @@ class ManageLearn extends React.Component {
                 learn_image: "",
                 learn_category: "",
                 learn_video: "",
+                learn_link:"",
                 learn_created_at: new Date(),
                 learn_updated_at: new Date(),
                 learn_trash: false,
@@ -202,7 +203,7 @@ class ManageLearn extends React.Component {
                 this.setState({isOpen: false});
 
                 if (response.success) {
-
+                    console.log("resp>>>>>", response.data)
                     var learn = response.data;
                     this.setState({learnImage: "/uploads/" + learn.learn_image})
 
@@ -408,7 +409,15 @@ class ManageLearn extends React.Component {
 
                                                                 <FormText>Embed link for Youtube/Vimeo Video i.e. https://www.youtube.com/embed/t-rURJUMNKk</FormText>
                                                             </FormGroup>
-
+                                                            <FormGroup>
+                                                                <Label htmlFor="learn_link">Link</Label>
+                                                                <Input type="text" name="learn_link"
+                                                                        id="learn_link"
+                                                                        onChange={handleChange} 
+                                                                        value={values.learn_link}
+                                                                        invalid={errors.learn_link && touched.learn_link}
+                                                                        />
+                                                            </FormGroup>            
                                                             <FormGroup>
                                                                 <Label htmlFor="learn_image">Image</Label>
                                                                 <div

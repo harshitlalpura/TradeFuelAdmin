@@ -16,6 +16,7 @@ const LearnSchema = new mongoose.Schema({
         ref: 'learnCategories'
     },
     learn_video: {type: String},
+    learn_link: {type: String},
     learn_created_at: {type: Date, default: moment.tz('UTC').toDate()},
     learn_updated_at: {type: Date, default: moment.tz('UTC').toDate()},
     learn_trash: {type: Boolean, default: false},

@@ -42,6 +42,8 @@ exports.updateLearn = async (req, res) => {
         const learnData = JSON.parse(req.body.data);
 
 
+        console.log(learnData);
+
         var image_file = "";
 
         if (req.file && req.file.filename.length > 0) {
