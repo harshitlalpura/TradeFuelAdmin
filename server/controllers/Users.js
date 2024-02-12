@@ -9,6 +9,9 @@ const Admins = require("../models/Admins");
 const News = require("../models/News");
 const Learn = require("../models/Learn");
 const Transactions = require("../models/Transactions");
+const Subscriptions = require("../models/Subscriptions");
+const Portfolio = require("../models/Portfolio");
+
 
 require('dotenv').config();
 const SECRET_KEY = process.env.REACT_APP_SECRET_KEY;
@@ -35,14 +38,39 @@ exports.fetchTransactions = async (req, res) => {
     }
 };
 
-exports.fetchTransactions = async (req, res) => {
+exports.createTransaction = async (req, res) => {
     try {
         //  const users = await Users.find({user_trash: false});
+        //userId amount
 
 
-        res.json([]);
+        const updateResult = await Users.updateOne(
+            {
+                _id: req.body.userId,
+            },
+            {
+                $set: {
+                    user_subscription: req.body.planName
+                }  // Set stockSymbol (has no effect if document already exists).
+            }
+        );
+
+
+        const subscriptions = new Subscriptions({
+            planId: req.body.planId,
+            planPrice: parseFloat(req.body.planPrice),
+            planType: req.body.planType,
+            userId: req.body.userId,
+            razorpay_order_id: req.body.razorpay_order_id,
+            razorpay_payment_id: req.body.razorpay_payment_id,
+            planPurchasedAt:new Date(),
+        });
+        await subscriptions.save();
+        res.status(200).json({success:true,message: 'Subscription Plan Purchased Successfully.'});
+
+
     } catch (error) {
-        res.status(500).json({error: error.message});
+        res.status(500).json({success:false,error: error.message});
     }
 };
 
@@ -208,34 +236,34 @@ exports.fetchLeaderboardByEarnings = async (req, res) => {
     try {
         let fromDate = req.body.fromDate;
         let toDate = req.body.toDate;
-        console.log(req.body.time,fromDate,toDate);
+        console.log(req.body.time, fromDate, toDate);
 
         if (req.body.time == "D") {
 
             toDate = fromDate;
 
 
-            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
-            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+            fromDate = moment(fromDate, "DD/MM/YYYY").toDate();
+            toDate = moment(toDate, "DD/MM/YYYY").toDate();
 
         } else if (req.body.time == "W") {
 
-            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
-            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+            fromDate = moment(fromDate, "DD/MM/YYYY").toDate();
+            toDate = moment(toDate, "DD/MM/YYYY").toDate();
         } else if (req.body.time == "M") {
 
-            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
-            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+            fromDate = moment(fromDate, "DD/MM/YYYY").toDate();
+            toDate = moment(toDate, "DD/MM/YYYY").toDate();
         } else if (req.body.time == "C") {
 
-            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
-            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+            fromDate = moment(fromDate, "DD/MM/YYYY").toDate();
+            toDate = moment(toDate, "DD/MM/YYYY").toDate();
         }
 
         fromDate.setHours(0, 0, 0, 0);
         toDate.setHours(23, 59, 59, 999);
 
-        console.log(fromDate,toDate);
+        console.log(fromDate, toDate);
 
         const result = await Transactions.aggregate([
             {
@@ -294,34 +322,34 @@ exports.fetchLeaderboardByVolume = async (req, res) => {
 
         let fromDate = req.body.fromDate;
         let toDate = req.body.toDate;
-        console.log(req.body.time,fromDate,toDate);
+        console.log(req.body.time, fromDate, toDate);
 
         if (req.body.time == "D") {
 
             toDate = fromDate;
 
 
-            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
-            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+            fromDate = moment(fromDate, "DD/MM/YYYY").toDate();
+            toDate = moment(toDate, "DD/MM/YYYY").toDate();
 
         } else if (req.body.time == "W") {
 
-            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
-            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+            fromDate = moment(fromDate, "DD/MM/YYYY").toDate();
+            toDate = moment(toDate, "DD/MM/YYYY").toDate();
         } else if (req.body.time == "M") {
 
-            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
-            toDate = moment(toDate,"DD/MM/YYYY").toDate();
-        }else if (req.body.time == "C") {
+            fromDate = moment(fromDate, "DD/MM/YYYY").toDate();
+            toDate = moment(toDate, "DD/MM/YYYY").toDate();
+        } else if (req.body.time == "C") {
 
-            fromDate = moment(fromDate,"DD/MM/YYYY").toDate();
-            toDate = moment(toDate,"DD/MM/YYYY").toDate();
+            fromDate = moment(fromDate, "DD/MM/YYYY").toDate();
+            toDate = moment(toDate, "DD/MM/YYYY").toDate();
         }
 
         fromDate.setHours(0, 0, 0, 0);
         toDate.setHours(23, 59, 59, 999);
 
-        console.log(fromDate,toDate);
+        console.log(fromDate, toDate);
 
         const result = await Transactions.aggregate([
             {

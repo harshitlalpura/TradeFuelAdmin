@@ -24,8 +24,7 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 app.use(cors());
-
-app.use('/dashboard', express.static(path.join(__dirname, '..', 'build')));
+/*app.use('/dashboard', express.static(path.join(__dirname, '..', 'build')));
 app.use('/login', express.static(path.join(__dirname, '..', 'build')));
 app.use('/subscriptions', express.static(path.join(__dirname, '..', 'build')));
 app.use('/plans', express.static(path.join(__dirname, '..', 'build')));
@@ -47,11 +46,28 @@ app.use('/admin', express.static(path.join(__dirname, '..', 'build')));
 app.use('/settings/paymentgateway', express.static(path.join(__dirname, '..', 'build')));
 app.use('/settings/stockmarket', express.static(path.join(__dirname, '..', 'build')));
 app.use('/settings/contactus', express.static(path.join(__dirname, '..', 'build')));
-app.use('/settings/maintenance', express.static(path.join(__dirname, '..', 'build')));
+app.use('/settings/maintenance', express.static(path.join(__dirname, '..', 'build')));*/
 
 
-
-
+app.use('/market', express.static(path.join(__dirname, '..', 'build')));
+app.use('/profile', express.static(path.join(__dirname, '..', 'build')));
+app.use('/watchlist', express.static(path.join(__dirname, '..', 'build')));
+app.use('/portfolio', express.static(path.join(__dirname, '..', 'build')));
+app.use('/stock', express.static(path.join(__dirname, '..', 'build')));
+app.use('/learn', express.static(path.join(__dirname, '..', 'build')));
+app.use('/learn-details', express.static(path.join(__dirname, '..', 'build')));
+app.use('/news', express.static(path.join(__dirname, '..', 'build')));
+app.use('/news-details', express.static(path.join(__dirname, '..', 'build')));
+app.use('/stock-details', express.static(path.join(__dirname, '..', 'build')));
+app.use('/tradehistory', express.static(path.join(__dirname, '..', 'build')));
+app.use('/wallet', express.static(path.join(__dirname, '..', 'build')));
+app.use('/login', express.static(path.join(__dirname, '..', 'build')));
+app.use('/verify-sms', express.static(path.join(__dirname, '..', 'build')));
+app.use('/registration1', express.static(path.join(__dirname, '..', 'build')));
+app.use('/registration2', express.static(path.join(__dirname, '..', 'build')));
+app.use('/registration3', express.static(path.join(__dirname, '..', 'build')));
+app.use('/leaderboard', express.static(path.join(__dirname, '..', 'build')));
+app.use('/', express.static(path.join(__dirname, '..', 'build')));
 
 
 //app.use(express.static('build'));
@@ -174,9 +190,9 @@ app.post('/verifyAdminEmail', authenticate, admin.verifyAdminEmail);
 var imageStorage = multer.diskStorage({
     destination: function (req, file, cb) {
         // cb(null, '/Users/harshit/Documents/workspace/React/StockTradingAdmin/public/uploads/');
-       // cb(null, '/home/hashmedia/projects/tradefuel/public/uploads/');
+        // cb(null, '/home/hashmedia/projects/tradefuel/public/uploads/');
         //  cb(null, '/Users/manndave/Documents/Workspace/StockTradingAdmin/public/uploads/');
-         cb(null, '/home/ubuntu/StockTradingAdmin/public/uploads/')
+        cb(null, '/home/ubuntu/StockTradingAdmin/public/uploads/')
     },
     filename: function (req, file, cb) {
 
@@ -370,12 +386,14 @@ app.post('/saveBanner', (req, res) => {
 app.get('/fetchAllVisitors', authenticate, user.fetchAllVisitors);
 
 app.get('/fetchAllPlans', plans.fetchAllPlans);
+app.post('/createOrder', plans.createOrder);
 app.post('/fetchPlan', authenticate, plans.fetchPlan);
 app.post('/deletePlan', authenticate, plans.deletePlan);
 app.post('/savePlan', authenticate, plans.savePlan);
 app.post('/updatePlan', authenticate, plans.updatePlan);
 
 app.post('/fetchTransactions', authenticate, user.fetchTransactions);
+app.post('/createTransaction', user.createTransaction);
 app.get('/fetchUsers', authenticate, user.fetchUsers);
 app.post('/changeUserStatus', authenticate, user.changeUserStatus);
 app.post('/deleteUser', authenticate, user.deleteUser);

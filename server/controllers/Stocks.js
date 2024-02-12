@@ -519,6 +519,9 @@ exports.processTransaction = async (req, res) => {
                         stockSymbol: req.body.symbol
                     });
 
+
+                    res.status(200).json({success: true, message: ""});
+
                 } else if (portfolio.quantity < parseInt(req.body.quantity)) {
 
 

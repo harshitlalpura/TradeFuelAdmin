@@ -6,6 +6,7 @@ const moment = require("moment-timezone");
 const {getNextSequence} = require("mongodb-autoincrement");
 const Plan = require("../models/Plans");
 require('dotenv').config();
+const Razorpay = require("razorpay");
 
 
 exports.savePlan = async (req, res) => {
@@ -76,3 +77,26 @@ exports.fetchPlan = async (req, res) => {
         res.status(500).json({error: error.message});
     }
 };
+
+exports.createOrder = async (req, res) => {
+    try {
+        const instance = new Razorpay({
+            key_id: process.env.RAZOR_PAY_KEY_ID,
+            key_secret: process.env.RAZOR_PAY_SECRET,
+        });
+
+        const options = {
+            amount: parseFloat(req.body.amount)*100, // amount in smallest currency unit
+            currency: "INR",
+            receipt: "receipt_order_74394",
+        };
+
+        const order = await instance.orders.create(options);
+
+        if (!order) return res.status(500).send("Some error occured");
+
+        res.json(order);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+}
