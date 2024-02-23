@@ -7,6 +7,7 @@ const plans = require('./controllers/Plans');
 const feedback = require('./controllers/Feedbacks');
 const settings = require('./controllers/Settings');
 const stocks = require('./controllers/Stocks');
+
 const banner = require('./controllers/Banners');
 const news = require('./controllers/News');
 const learn = require('./controllers/Learn');
@@ -68,6 +69,9 @@ app.use('/registration2', express.static(path.join(__dirname, '..', 'build')));
 app.use('/registration3', express.static(path.join(__dirname, '..', 'build')));
 app.use('/leaderboard', express.static(path.join(__dirname, '..', 'build')));
 app.use('/', express.static(path.join(__dirname, '..', 'build')));
+
+
+
 
 
 //app.use(express.static('build'));
@@ -385,6 +389,11 @@ app.post('/saveBanner', (req, res) => {
 
 app.get('/fetchAllVisitors', authenticate, user.fetchAllVisitors);
 
+
+
+app.post('/createTransaction', user.createTransaction);
+app.post('/createOrder', plans.createOrder);
+
 app.get('/fetchAllPlans', plans.fetchAllPlans);
 app.post('/createOrder', plans.createOrder);
 app.post('/fetchPlan', authenticate, plans.fetchPlan);
@@ -521,7 +530,7 @@ app.post('/saveLearn', (req, res) => {
 
 app.post('/saveSettings', authenticate, settings.saveSettings);
 app.post('/updateSettings', authenticate, settings.updateSettings);
-
+app.post('/saveBalance', user.saveBalance);
 app.post('/saveNotificationGroup', authenticate, notificationGroups.saveNotificationGroup);
 app.post('/updateNotificationGroup', authenticate, notificationGroups.updateNotificationGroup);
 app.get('/fetchAllNotificationGroups', notificationGroups.fetchAllNotificationGroups);

@@ -58,7 +58,7 @@ exports.fetchTopLosers = async (req, res) => {
         })
     })
 
-    console.log("LOSERS", topLosers);
+    console.log("LOSERS",topLosers);
     res.status(200).json({status: 1, data: topLosers});
 }
 
@@ -1492,7 +1492,7 @@ const calculatePortfolioValue = (portfolio, currentPosition) => {
 
 exports.fetchTrandingStocks = async (req, res) => {
 
-    var url = process.env.FMP_API_BASE_URL + 'stock-screener?limit=5&exchange=NSE&country=IN&isActivelyTrading=true&apikey=' + res.locals.stockAPIKey;
+    var url = process.env.FMP_API_BASE_URL + 'stock-screener?limit=5&country=IN&isActivelyTrading=true&apikey=' + res.locals.stockAPIKey;
 //https://fmpcloud.io/api/v3/stock-screener?limit=5&country=IN&isActivelyTrading=true&apikey=5b4ae5a2feea1ab3797342fd287cfc92
 
     console.log(url);
@@ -1500,12 +1500,6 @@ exports.fetchTrandingStocks = async (req, res) => {
         .then(async (response) => {
 
             let data = response.data;
-
-            data = data.filter(function (item) {
-                return item.symbol.indexOf('.BO') == -1;
-            });
-
-            console.log(data);
 
             for (var i = 0; i < data.length; i++) {
 
