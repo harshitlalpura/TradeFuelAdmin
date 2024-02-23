@@ -152,6 +152,29 @@ exports.loginUser = async (req, res) => {
     }
 };
 
+exports.saveBalance = async (req, res) => {
+
+    try {
+
+        const userData = {
+            user_balance: req.body.user_balance,
+            _id: req.body.user_id,
+        };
+
+        console.log(userData);
+        const updatedUser = await Users.findByIdAndUpdate(userData._id, userData, {new: true});
+
+        if (!updatedUser) {
+            return res.status(404).json({error: 'User not found'});
+        }
+
+        res.status(200).json({status: 1, message: 'User updated successfully', user: updatedUser});
+
+    } catch (error) {
+        res.status(200).json({status: 0, message: error.message});
+    }
+};
+
 exports.changeUserStatus = async (req, res) => {
     try {
         const user = await Users.findByIdAndUpdate(req.body._id, {user_block: !req.body.user_block}, {new: true});
@@ -434,5 +457,41 @@ exports.updateUser = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({error: error.message});
+    }
+};
+
+exports.createTransaction = async (req, res) => {
+    try {
+        //  const users = await Users.find({user_trash: false});
+        //userId amount
+
+
+        const updateResult = await Users.updateOne(
+            {
+                _id: req.body.userId,
+            },
+            {
+                $set: {
+                    user_subscription: req.body.planName
+                }  // Set stockSymbol (has no effect if document already exists).
+            }
+        );
+
+
+        const subscriptions = new Subscriptions({
+            planId: req.body.planId,
+            planPrice: parseFloat(req.body.planPrice),
+            planType: req.body.planType,
+            userId: req.body.userId,
+            razorpay_order_id: req.body.razorpay_order_id,
+            razorpay_payment_id: req.body.razorpay_payment_id,
+            planPurchasedAt: new Date(),
+        });
+        await subscriptions.save();
+        res.status(200).json({success: true, message: 'Subscription Plan Purchased Successfully.'});
+
+
+    } catch (error) {
+        res.status(500).json({success: false, error: error.message});
     }
 };
