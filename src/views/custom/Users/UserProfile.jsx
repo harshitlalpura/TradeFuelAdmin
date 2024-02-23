@@ -226,14 +226,14 @@ class UserProfile extends React.Component {
 
   handleWallateBalance = () => {
     if (this.state.balance !== undefined && this.state.balance !== null && this.state.balance !== '') {
-      console.log("clicked", this.state.balance);
+    //   console.log("clicked", this.state.balance);
       try {
         makeProtectedRequest("/saveBalance", "POST", {
           user_id: this.state.user_id,
           user_balance: this.state.balance
         })
           .then((response) => {
-            console.log(">>>>", response)
+            // console.log(">>>>", response)
             if (response.success) {
             this.fetchUser(this.state.user_id)
             this.setState({balance:""})
@@ -259,7 +259,7 @@ class UserProfile extends React.Component {
 
   render() {
     const { user, transactions, balance, modal } = this.state;
-    console.log("response>>", user)
+    // console.log("response>>", user)
     return (
       <div>
         <div className="content">
