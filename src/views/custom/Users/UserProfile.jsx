@@ -94,6 +94,8 @@ class UserProfile extends React.Component {
       transactions: [],
       isOpen: false,
       modal: false,
+      startDate: '',
+      endDate: '',
       balance:'',
       user: {
         user_name: "",
@@ -256,10 +258,32 @@ class UserProfile extends React.Component {
     } 
   }
   
+  // date wise filter
+  handleStartDateChange = (e) => {
+    this.setState({ startDate: e.target.value });
+  };
+
+  handleEndDateChange = (e) => {
+    this.setState({ endDate: e.target.value });
+  };
 
   render() {
-    const { user, transactions, balance, modal } = this.state;
+    const { user, transactions, balance, modal,  startDate, endDate } = this.state;
     // console.log("response>>", user)
+    const filteredTransactions = transactions.filter((row) => {
+      if (!startDate || !endDate) {
+        return true; // No filtering if start or end date is not provided
+      }
+      
+      const transactionDate = moment.tz(row.createdAt, 'UTC');
+      const startOfDay = moment(startDate).startOf('day');
+      const endOfDay = moment(endDate).endOf('day');
+    
+      return transactionDate.isBetween(startOfDay, endOfDay, null, '[]');
+    });
+    
+    
+
     return (
       <div>
         <div className="content">
@@ -369,6 +393,7 @@ class UserProfile extends React.Component {
                               name="date"
                               id="exampleDate"
                               placeholder=""
+                              onChange={this.handleStartDateChange}
                             />
                           </FormGroup>
                         </div>
@@ -380,6 +405,8 @@ class UserProfile extends React.Component {
                               name="date"
                               id="exampleDate"
                               placeholder=""
+                              min={startDate} // Set min attribute dynamically
+                              onChange={this.handleEndDateChange}
                             />
                           </FormGroup>
                         </div>
@@ -397,9 +424,9 @@ class UserProfile extends React.Component {
                         //   }))
                         // }
                         tableBody={
-                          transactions &&
-                          transactions.length > 0 &&
-                          transactions.map((row, index) => ({
+                          filteredTransactions &&
+                          filteredTransactions.length > 0 &&
+                          filteredTransactions.map((row, index) => ({
                             txn_no: index + 1,
                             txn_type:   <Badge style={{ width: "100%" }} color="accent">
                             Stock
@@ -408,7 +435,7 @@ class UserProfile extends React.Component {
                               row.transactionType == "B" ? "Buy" : "Sell",
                             txn_volume: row.quantity,
                             txn_amount: Number(row.amount).toFixed(2),
-                            txn_script: row.stockSymbol.split(".")[0],
+                            txn_script: row.stockSymbol&&row.stockSymbol.split(".")[0],
                             total:(Number(row.quantity) * Number(row.amount)).toFixed(2),
                             txn_datetime:  moment.tz(row.createdAt, 'UTC').format("DD/MM/YYYY h:mm A"),
                             // view: <ViewButton {...row} />,
