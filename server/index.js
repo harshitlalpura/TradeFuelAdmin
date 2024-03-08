@@ -25,7 +25,7 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 app.use(cors());
-/*app.use('/dashboard', express.static(path.join(__dirname, '..', 'build')));
+app.use('/dashboard', express.static(path.join(__dirname, '..', 'build')));
 app.use('/login', express.static(path.join(__dirname, '..', 'build')));
 app.use('/subscriptions', express.static(path.join(__dirname, '..', 'build')));
 app.use('/plans', express.static(path.join(__dirname, '..', 'build')));
@@ -47,9 +47,10 @@ app.use('/admin', express.static(path.join(__dirname, '..', 'build')));
 app.use('/settings/paymentgateway', express.static(path.join(__dirname, '..', 'build')));
 app.use('/settings/stockmarket', express.static(path.join(__dirname, '..', 'build')));
 app.use('/settings/contactus', express.static(path.join(__dirname, '..', 'build')));
-app.use('/settings/maintenance', express.static(path.join(__dirname, '..', 'build')));*/
+app.use('/settings/maintenance', express.static(path.join(__dirname, '..', 'build')));
 
 
+/*
 app.use('/market', express.static(path.join(__dirname, '..', 'build')));
 app.use('/profile', express.static(path.join(__dirname, '..', 'build')));
 app.use('/watchlist', express.static(path.join(__dirname, '..', 'build')));
@@ -69,6 +70,7 @@ app.use('/registration2', express.static(path.join(__dirname, '..', 'build')));
 app.use('/registration3', express.static(path.join(__dirname, '..', 'build')));
 app.use('/leaderboard', express.static(path.join(__dirname, '..', 'build')));
 app.use('/', express.static(path.join(__dirname, '..', 'build')));
+*/
 
 
 
