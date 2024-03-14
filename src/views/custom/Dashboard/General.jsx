@@ -24,6 +24,7 @@ import {makeProtectedDataRequest, makeProtectedRequest, makeRequest} from "../ap
 
 import Chart from "react-apexcharts";
 import moment from "moment";
+import Leaderboard from './Leaderboard';
 
 
 var IMGDIR = process.env.REACT_APP_IMGDIR;
@@ -444,7 +445,7 @@ class General extends React.Component {
                                     </section>
                                 </div>
 
-                                <div className="col-12 col-lg-6 col-xl-6 col-md-12 col-sm-12">
+                                {/* <div className="col-12 col-lg-6 col-xl-6 col-md-12 col-sm-12">
                                     <section className="box ">
                                         <header className="panel_header">
                                             <h2 className="title float-left">Top Gainers</h2>
@@ -888,9 +889,9 @@ class General extends React.Component {
                                             </div>
                                         </div>
                                     </section>
-                                </div>
+                                </div> */}
 
-
+                                   <Leaderboard />                     
                             </div>
 
 

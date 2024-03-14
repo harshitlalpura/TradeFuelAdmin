@@ -10214,3 +10214,118 @@ table.fixheight {
   font-size: 18px;
   font-weight: 300;
   line-height: 29px; }
+
+  /* leader board css */
+  .radioButtonGroup{
+    width: fit-content;
+    border: 1px solid #a8a8a8;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    float: right;
+    flex-direction: row;
+    flex-wrap: no-wrap;
+}
+.radioButtonGroup input{ display: none!important; }
+.radioButtonGroup label{
+    font-family: sans-serif;
+    padding: 10px 16px;
+    border-right: 1px solid #ccc;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.radioButtonGroup label:last-of-type{ border-right: 0; }
+.radioButtonGroup label:hover{
+    background: #eee;
+}
+.radioButtonGroup input:checked + label{
+    background: #52ad5e;
+    color:#fff;
+    border: 1px solid #52ad5e!important;
+}
+.stock-card .card-text {
+  font-size: 16px;
+  color: #2B3144;
+}
+
+#card label {
+  margin-bottom: 0;
+}
+.stock-card .graph {
+
+  width: 100px;
+  float: right;
+  height: 70px;
+  position: absolute;
+  right: 0;
+  top: 15px;
+}
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  padding-left: 0;
+  margin-bottom: 0;
+  list-style: none;
+}
+
+
+.nav .nav-pills {
+  width: 100%;
+}
+
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  color: #52AD5E;
+  font-size: 14px;
+  background: transparent;
+  border-bottom: 2px solid #52AD5E;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+
+}
+
+.nav-pills .nav-item {
+  width: 50%;
+}
+.nav-pills .nav-link {
+  background: 0 0;
+  border: 0;
+  border-radius: 0.25rem;
+}
+
+.stock-tab .nav-item {
+  width: 33% !important;
+}
+
+.stock-tab .three-nav {
+  width: 33% !important;
+}
+
+.stock-tab .two-nav {
+  width: 50% !important;
+}
+
+.nav-pills .nav-link {
+  color: #6C7080;
+  font-size: 14px;
+  border-bottom: 1px solid #CCCED9;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  width: 100%;
+
+
+}
+
+.float-right {
+  float: right;
+}
+
+.stock-card span {
+  font-size: 16px;
+}
+
+.search-input:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: #ced4da;
+}
