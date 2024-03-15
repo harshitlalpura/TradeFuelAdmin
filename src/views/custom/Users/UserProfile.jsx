@@ -9,6 +9,11 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  FormFeedback,
 } from "reactstrap";
 
 import { Button } from "components";
@@ -18,7 +23,9 @@ import moment from "moment/moment";
 import { Link } from "react-router-dom";
 import { makeProtectedRequest } from "../api";
 import { convertFromRaw, EditorState } from "draft-js";
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
+import { Form, Formik } from "formik";
+import * as Yup from "yup";
 
 var IMGDIR = process.env.REACT_APP_IMGDIR;
 
@@ -35,14 +42,14 @@ const header = [
 
   { title: "Volume", prop: "txn_volume", sortable: true, filterable: false },
   { title: "Price", prop: "txn_amount", sortable: true, filterable: false },
-  {title: "Total", prop: "total", sortable: true, filterable: false},
+  { title: "Total", prop: "total", sortable: true, filterable: false },
   {
     title: "Date/Time",
     prop: "txn_datetime",
     sortable: true,
     filterable: true,
   },
-//   { title: "View", prop: "view", sortable: false, filterable: false },
+  //   { title: "View", prop: "view", sortable: false, filterable: false },
 ];
 
 const onSortFunction = {
@@ -89,14 +96,21 @@ class UserProfile extends React.Component {
     super(props);
 
     this.toggle = this.toggle.bind(this);
+    this.coinToggle = this.coinToggle.bind(this);
 
     this.state = {
       transactions: [],
       isOpen: false,
       modal: false,
-      startDate: '',
-      endDate: '',
-      balance:'',
+      coinModel: false,
+      coinDropdown: false,
+      startDate: "",
+      endDate: "",
+      balance: "",
+      coinValue: "",
+      coninValueError: false,
+      selectDropdownError: false,
+      // selectedOption: null,
       user: {
         user_name: "",
         user_email: "",
@@ -105,26 +119,35 @@ class UserProfile extends React.Component {
         user_created_at: new Date(),
         user_trash: false,
       },
+      learnCategory: {
+        coin_value: "",
+        selectedOption: null,
+      },
     };
   }
   componentDidMount() {
     const { location } = this.props;
 
-    if (location.state) {
-      // Accessing the passed value from state
+    // if (location.state) {
+    //   // Accessing the passed value from state
 
-      if (location.state.user_id) {
-        const user_id = location.state.user_id;
+    //   if (location.state.user_id) {
+    //     const user_id = location.state.user_id;
 
-        // Accessing the passed value from query parameters
-        // const queryParams = new URLSearchParams(location.search);
-        // const passedValue = queryParams.get('passedValue');
-        console.log("Passed Value:", user_id);
-        this.setState({ user_id: user_id });
+    //     // Accessing the passed value from query parameters
+    //     // const queryParams = new URLSearchParams(location.search);
+    //     // const passedValue = queryParams.get('passedValue');
+    //     console.log("Passed Value:", user_id);
+    //     this.setState({ user_id: user_id });
 
-        this.fetchUser(user_id);
-      }
-    }
+    //     this.fetchUser(user_id);
+    //   }
+    // }
+    ;
+    let user_id = localStorage.getItem("userId")
+    this.setState({ user_id: user_id });
+
+    this.fetchUser(user_id);
   }
 
   fetchUser = (id) => {
@@ -217,35 +240,75 @@ class UserProfile extends React.Component {
   toggle() {
     this.setState({ modal: !this.state.modal });
   }
+  // open add coin model
+  coinToggle() {
+    this.setState({ coinModel: !this.state.coinModel });
+    this.setState({ coninValueError: false });
+    this.setState({ selectDropdownError: false });
+  }
+
+  toggleDropdown = () => {
+    this.setState({ coinDropdown: !this.state.coinDropdown });
+  };
 
   handleBalanceChange = (event) => {
     const value = event.target.value;
     // Check if the value is a positive integer
-    if (/^\d+$/.test(value) || value === '') {
+    if (/^\d+$/.test(value) || value === "") {
       this.setState({ balance: value });
     }
   };
+  validationCatSchema = () => {
+    return Yup.object().shape({
+      coin_value: Yup.string()
+        .required("Coin value is Required")
+        .matches(/^\d+$/, "Coin value must contain only digits"),
+      selectedOption: Yup.object().nullable().required("Option is Required"),
+    });
+  };
+
+  handleCoinChange = (event) => {
+    const value = event.target.value;
+    // Check if the value is a positive integer
+    if (/^\d+$/.test(value) || value === "") {
+      this.setState({ coinValue: value });
+      this.setState({ coninValueError: false });
+    }
+  };
+
+  handleSelect = (option) => {
+    this.setState({
+      selectedOption: option,
+      isOpen: false,
+    });
+    this.setState({ selectDropdownError: false });
+  };
 
   handleWallateBalance = () => {
-    if (this.state.balance !== undefined && this.state.balance !== null && this.state.balance !== '') {
-    //   console.log("clicked", this.state.balance);
+    if (
+      this.state.balance !== undefined &&
+      this.state.balance !== null &&
+      this.state.balance !== ""
+    ) {
+      //   console.log("clicked", this.state.balance);
       try {
         makeProtectedRequest("/saveBalance", "POST", {
           user_id: this.state.user_id,
-          user_balance: this.state.balance
+          user_balance:
+            Number(this.state.user.user_balance) + Number(this.state.balance),
         })
           .then((response) => {
             // console.log(">>>>", response)
             if (response.success) {
-            this.fetchUser(this.state.user_id)
-            this.setState({balance:""})
-            this.toggle();
-            Swal.fire({
+              this.fetchUser(this.state.user_id);
+              this.setState({ balance: "" });
+              this.toggle();
+              Swal.fire({
                 text: "Wallet Updated Successfully.",
-                icon: "Success"
+                icon: "Success",
               });
             } else {
-                console.log("else part")
+              console.log("else part");
             }
           })
           .catch((error) => {
@@ -255,9 +318,26 @@ class UserProfile extends React.Component {
       } catch (error) {
         this.setState({ message: "Error" });
       }
-    } 
-  }
-  
+    }
+  };
+
+  handleCoinSave = () => {
+    if (
+      this.state.coinValue !== undefined &&
+      this.state.coinValue !== null &&
+      this.state.coinValue !== "" &&
+      this.state.selectedOption !== undefined &&
+      this.state.selectedOption !== null &&
+      this.state.selectedOption !== ""
+    ) {
+      console.log("coin save", this.state.coinValue);
+      console.log("selectedOption", this.state.selectedOption.label);
+    } else {
+      this.setState({ coninValueError: this.state.coinValue ? false :true });
+      this.setState({ selectDropdownError: this.state.selectedOption? false:true });
+    }
+  };
+
   // date wise filter
   handleStartDateChange = (e) => {
     this.setState({ startDate: e.target.value });
@@ -268,21 +348,29 @@ class UserProfile extends React.Component {
   };
 
   render() {
-    const { user, transactions, balance, modal,  startDate, endDate } = this.state;
+    const {
+      user,
+      transactions,
+      balance,
+      modal,
+      startDate,
+      endDate,
+      coinValue,
+      selectedOption,
+      learnCategory,
+    } = this.state;
     // console.log("response>>", user)
     const filteredTransactions = transactions.filter((row) => {
       if (!startDate || !endDate) {
         return true; // No filtering if start or end date is not provided
       }
-      
-      const transactionDate = moment.tz(row.createdAt, 'UTC');
-      const startOfDay = moment(startDate).startOf('day');
-      const endOfDay = moment(endDate).endOf('day');
-    
-      return transactionDate.isBetween(startOfDay, endOfDay, null, '[]');
+
+      const transactionDate = moment.tz(row.createdAt, "UTC");
+      const startOfDay = moment(startDate).startOf("day");
+      const endOfDay = moment(endDate).endOf("day");
+
+      return transactionDate.isBetween(startOfDay, endOfDay, null, "[]");
     });
-    
-    
 
     return (
       <div>
@@ -350,6 +438,14 @@ class UserProfile extends React.Component {
                             <i className="fa fa-plus"></i> &nbsp;{" "}
                             <span>Wallet Balance</span>
                           </button>
+                          <button
+                            type="button"
+                            className="btn btn-purple btn-sm btn-icon  profile-btn"
+                            onClick={() => this.coinToggle()}
+                          >
+                            <i className="fa fa-plus"></i> &nbsp;{" "}
+                            <span>Coin</span>
+                          </button>
                           <div className="clearfix"></div>
                           <p className="uprofile-title">
                             {user.user_subscription}
@@ -369,7 +465,8 @@ class UserProfile extends React.Component {
                           </p>
                           <p>
                             <span>
-                              <i className="i-wallet"></i> {Number(user.user_balance).toFixed(2)} INR
+                              <i className="i-wallet"></i>{" "}
+                              {Number(user.user_balance).toFixed(2)} INR
                             </span>
                           </p>
                         </div>
@@ -428,16 +525,23 @@ class UserProfile extends React.Component {
                           filteredTransactions.length > 0 &&
                           filteredTransactions.map((row, index) => ({
                             txn_no: index + 1,
-                            txn_type:   <Badge style={{ width: "100%" }} color="accent">
-                            Stock
-                          </Badge>,
+                            txn_type: (
+                              <Badge style={{ width: "100%" }} color="accent">
+                                Stock
+                              </Badge>
+                            ),
                             txn_direction:
                               row.transactionType == "B" ? "Buy" : "Sell",
                             txn_volume: row.quantity,
                             txn_amount: Number(row.amount).toFixed(2),
-                            txn_script: row.stockSymbol&&row.stockSymbol.split(".")[0],
-                            total:(Number(row.quantity) * Number(row.amount)).toFixed(2),
-                            txn_datetime:  moment.tz(row.createdAt, 'UTC').format("DD/MM/YYYY h:mm A"),
+                            txn_script:
+                              row.stockSymbol && row.stockSymbol.split(".")[0],
+                            total: (
+                              Number(row.quantity) * Number(row.amount)
+                            ).toFixed(2),
+                            txn_datetime: moment
+                              .tz(row.createdAt, "UTC")
+                              .format("DD/MM/YYYY h:mm A"),
                             // view: <ViewButton {...row} />,
                           }))
                         }
@@ -457,6 +561,18 @@ class UserProfile extends React.Component {
                 </section>
               </div>
             </Col>
+            <Col>
+              <div className="col-xl-12">
+                <section className="box profile-page">
+                  <div className="content-body">
+                    <div className="col-12">
+                      <h4>Coin History:</h4>
+                      <div className="clearfix"></div>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </Col>
           </Row>
         </div>
         <Modal
@@ -466,7 +582,14 @@ class UserProfile extends React.Component {
         >
           <ModalHeader toggle={this.toggle}>Wallet Balance</ModalHeader>
           <ModalBody>
-            <Input type="text" name="balance" id="balance" placeholder="Enter value" value={balance} onChange={this.handleBalanceChange} />
+            <Input
+              type="text"
+              name="balance"
+              id="balance"
+              placeholder="Enter value"
+              value={balance}
+              onChange={this.handleBalanceChange}
+            />
             {/* <Button style={{marginTop:"10px"}} onClick={this.handleWallateBalance}>Save</Button> */}
             <button
               type="button"
@@ -477,6 +600,169 @@ class UserProfile extends React.Component {
             </button>
           </ModalBody>
         </Modal>
+
+        <Modal
+          isOpen={this.state.coinModel}
+          toggle={this.coinToggle}
+          className={this.props.className}
+        >
+          <ModalHeader toggle={this.coinToggle}>Coin</ModalHeader>
+          <ModalBody>
+            <Input
+              type="text"
+              name="coin"
+              id="coin"
+              placeholder="Enter value"
+              value={coinValue}
+              onChange={this.handleCoinChange}
+            />
+            {this.state.coninValueError ? (
+              <div className="text-danger">Please enter value</div>
+            ) : null}
+            <Dropdown
+              isOpen={this.state.coinDropdown}
+              toggle={this.toggleDropdown}
+              className="mt-2 w-100"
+            >
+              <DropdownToggle
+                caret
+                className="w-100"
+                style={{
+                  backgroundColor: "white",
+                  color: "#505458",
+                  textAlign: "left",
+                  border: "1px solid #eeeeee",
+                }}
+              >
+                {selectedOption ? selectedOption.label : "Select an option"}
+              </DropdownToggle>
+              <DropdownMenu>
+                <DropdownItem
+                  onClick={() =>
+                    this.handleSelect({ value: 1, label: "Debit" })
+                  }
+                >
+                  Debit
+                </DropdownItem>
+                <DropdownItem
+                  onClick={() =>
+                    this.handleSelect({ value: 2, label: "Credit" })
+                  }
+                >
+                  Credit
+                </DropdownItem>
+
+                <DropdownItem divider />
+              </DropdownMenu>
+              {this.state.selectDropdownError ? (
+                <div className="text-danger">Please select value</div>
+              ) : null}
+            </Dropdown>
+            <br></br>
+            <button
+              type="button"
+              className="btn btn-purple btn-sm btn-icon  profile-btn mt-3"
+              onClick={this.handleCoinSave}
+            >
+              Save
+            </button>
+          </ModalBody>
+        </Modal>
+        {/* <Modal
+          isOpen={this.state.coinModel}
+          toggle={this.coinToggle}
+          className={this.props.className}
+        >
+          <ModalBody>
+            <Formik
+              innerRef={this.formikRef}
+              enableReinitialize={true}
+              initialValues={this.state.learnCategory}
+              validationSchema={this.validationCatSchema}
+              onSubmit={(values) => {
+                // same shape as initial values
+                console.log(values);
+                // this.saveCategory(values);
+              }}
+            >
+              {({
+                errors,
+                touched,
+                handleChange,
+                handleBlur,
+                values,
+                setFieldValue,
+                validateField,
+              }) => (
+                <Form>
+                  {" "}
+                  <FormGroup>
+                    <Label htmlFor="coin_value">Coin</Label>
+                    <Input
+                      type="text"
+                      name="coin_value"
+                      id="coin_value"
+                      onChange={handleChange}
+                      value={values.coin_value}
+                      placeholder="Enter value"
+                      invalid={errors.coin_value && touched.coin_value}
+                    />
+                    {errors.coin_value && touched.coin_value ? (
+                      <FormFeedback>{errors.coin_value}</FormFeedback>
+                    ) : null}
+                   
+                
+                    <Dropdown
+                      isOpen={this.state.coinDropdown}
+                      toggle={this.toggleDropdown}
+                      className="mt-2 w-100"
+                    >
+                      <DropdownToggle
+                        caret
+                        className="w-100"
+                        style={{
+                          backgroundColor: "white",
+                          color: "#505458",
+                          textAlign: "left",
+                          border: "1px solid #eeeeee",
+                        }}
+                      >
+                        {selectedOption
+                          ? selectedOption.label
+                          : "Select an option"}
+                      </DropdownToggle>
+                      <DropdownMenu>
+                        <DropdownItem
+                          onClick={() =>
+                            // this.handleSelect({ value: 1, label: "Debit" })
+                            setFieldValue("selectedOption", { value: 1, label: "Debit" })
+                          }
+                        >
+                          Debit
+                        </DropdownItem>
+                        <DropdownItem
+                          onClick={() =>
+                            // this.handleSelect({ value: 2, label: "Credit" })
+                            setFieldValue("selectedOption", { value: 2, label: "Credit" })
+                          }
+                        >
+                          Credit
+                        </DropdownItem>
+                        <DropdownItem divider />
+                      </DropdownMenu>
+                    </Dropdown>
+                    {errors.selectedOption && touched.selectedOption ? (
+                      <FormFeedback>{errors.selectedOption}</FormFeedback>
+                    ) : null}
+                  </FormGroup>
+                  <Button className="float-left" type="submit">
+                    Add
+                  </Button>
+                </Form>
+              )}
+            </Formik>
+          </ModalBody>
+        </Modal> */}
       </div>
     );
   }

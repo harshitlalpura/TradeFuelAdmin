@@ -10329,3 +10329,24 @@ table.fixheight {
   box-shadow: none;
   border-color: #ced4da;
 }
+
+/* this css used for leaderboard page */
+button.btn.btn-default {
+  height: 53px;
+}
+
+.leader-board{
+  width: auto;
+}
+/* Add space between Name and Volume columns */
+/* .table-datatable.leader-board tbody .tbody-td-default:nth-child(3) {
+  margin-right: 200px; 
+} */
+.leader-board tr.tbody-tr-default td.tbody-td-default:nth-child(3){
+  padding-right: 350px;
+  padding-left: 50px;
+}
+.leader-board thead.thead-default tr.thead-tr-default th.thead-th-default:nth-child(3){
+  padding-right: 350px;
+  padding-left: 50px;
+}

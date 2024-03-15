@@ -78,7 +78,9 @@ class Users extends React.Component {
 
         const {history} = this.props;
 
-        history.push('/profile', {user_id: id});
+        // history.push('/profile', {user_id: id});
+        localStorage.setItem('userId', id)
+        history.push('/profile')
     }
     deleteUser = (id) => {
         try {
@@ -128,7 +130,7 @@ class Users extends React.Component {
             makeProtectedRequest('/fetchUsers', 'GET', {})
                 .then((response) => {
                     // Handle successful response
-
+                    
 
                     if (response.success) {
 
