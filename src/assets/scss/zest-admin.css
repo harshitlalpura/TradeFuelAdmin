@@ -10350,3 +10350,19 @@ button.btn.btn-default {
   padding-right: 350px;
   padding-left: 50px;
 }
+.leader-board thead.thead-default tr.thead-tr-default th.thead-th-default:nth-child(4){
+ width: 450px;
+}
+/* leader board datatable style modification*/
+.cd__main .form-group{
+  visibility: hidden;
+}
+.cd__main .text-right.col-md-4.col-xs-12{
+  visibility: hidden;
+}
+.cd__main .col-xs-12{
+  margin-top: -30px;
+}
+.cd__main .pull-right{
+  visibility: hidden;
+}

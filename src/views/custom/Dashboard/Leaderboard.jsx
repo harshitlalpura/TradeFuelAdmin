@@ -274,7 +274,13 @@ import Datatable from "react-bs-datatable";
 import { makeProtectedRequest } from "../api";
 import { Checkbox } from "../../../components";
 
-const header = [
+const headerEarning = [
+  { title: "", prop: "checkbox", sortable: false, filterable: false },
+  { title: "No", prop: "no", sortable: false, filterable: false },
+  { title: "Name", prop: "user_name", sortable: true, filterable: true },
+  { title: "Amount", prop: "totalProfit", sortable: true, filterable: true },
+];
+const headerVolume = [
   { title: "", prop: "checkbox", sortable: false, filterable: false },
   { title: "No", prop: "no", sortable: false, filterable: false },
   { title: "Name", prop: "user_name", sortable: true, filterable: true },
@@ -329,20 +335,20 @@ class Leaderboard extends Component {
       },
     };
 
-    this.onSortFunction = {
-      date(columnValue) {
-        return moment(columnValue, "Do MMMM YYYY").valueOf();
-      },
-    };
-    this.customLabels = {
-      first: "<<",
-      last: ">>",
-      prev: "<",
-      next: ">",
-      show: "Display ",
-      entries: " rows",
-      noResults: "There is no data to be displayed",
-    };
+    // this.onSortFunction = {
+    //   date(columnValue) {
+    //     return moment(columnValue, "Do MMMM YYYY").valueOf();
+    //   },
+    // };
+    // this.customLabels = {
+    //   first: "<<",
+    //   last: ">>",
+    //   prev: "<",
+    //   next: ">",
+    //   show: "Display ",
+    //   entries: " rows",
+    //   noResults: "There is no data to be displayed",
+    // };
   }
 
   componentDidMount() {
@@ -355,7 +361,6 @@ class Leaderboard extends Component {
   }
 
   handlePressTime = (index) => {
-    console.log(">>", index)
     let fromDate = new Date();
     let toDate = new Date(fromDate);
     const day = toDate.getDay();
@@ -382,13 +387,33 @@ class Leaderboard extends Component {
     this.setState({
       timeSelected: index,
     });
-    if (index !== "C") {
-      this.fetchLeaderboard(
-        this.state.selectedTab,
-        index,
-        this.state.fromDate,
-        this.state.toDate
-      );
+    // if (index !== "C") {
+    //   this.fetchLeaderboard(
+    //     this.state.selectedTab,
+    //     index,
+    //     this.state.fromDate,
+    //     this.state.toDate
+    //   );
+    // }
+   
+    // Ensure that fromDate and toDate are valid Date objects before calling formatDate
+    if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+      this.setState({
+        fromDate: this.formatDate(fromDate),
+        toDate: this.formatDate(toDate),
+        timeSelected: index,
+      });
+
+      if (index !== "C") {
+        this.fetchLeaderboard(
+          this.state.selectedTab,
+          index,
+          this.formatDate(fromDate),
+          this.formatDate(toDate)
+        );
+      }
+    } else {
+      console.error("Invalid date objects:", fromDate, toDate);
     }
   };
 
@@ -542,11 +567,13 @@ class Leaderboard extends Component {
                         onSort={this.onSortFunction}
                         labels={this.customLabels}
                       /> */}
+                      {data.length>0?
                       <Datatable
-                        tableHeader={header}
+                        tableHeader={this.state.selectedTab == 0?headerEarning : headerVolume}
                         tableBody={data.map((row, index) => ({
                           ...row,
                           no: index + 1,
+                          totalProfit: "₹" +  Number(row.totalProfit).toFixed(2)
                         }))}
                         keyName="leaderBoardTable"
                         tableClass="leader-board striped table-hover table-responsive"
@@ -558,7 +585,7 @@ class Leaderboard extends Component {
                         }}
                         onSort={onSortFunction}
                         labels={customLabels}
-                      />
+                      />:<span className="d-flex justify-content-center">There are no records to display</span>}
                     </main>
                   </div>
                 </div>

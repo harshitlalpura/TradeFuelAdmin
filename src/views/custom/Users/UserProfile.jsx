@@ -143,8 +143,7 @@ class UserProfile extends React.Component {
     //     this.fetchUser(user_id);
     //   }
     // }
-    ;
-    let user_id = localStorage.getItem("userId")
+    let user_id = localStorage.getItem("userId");
     this.setState({ user_id: user_id });
 
     this.fetchUser(user_id);
@@ -333,8 +332,10 @@ class UserProfile extends React.Component {
       console.log("coin save", this.state.coinValue);
       console.log("selectedOption", this.state.selectedOption.label);
     } else {
-      this.setState({ coninValueError: this.state.coinValue ? false :true });
-      this.setState({ selectDropdownError: this.state.selectedOption? false:true });
+      this.setState({ coninValueError: this.state.coinValue ? false : true });
+      this.setState({
+        selectDropdownError: this.state.selectedOption ? false : true,
+      });
     }
   };
 
@@ -485,26 +486,73 @@ class UserProfile extends React.Component {
                         <div className="col-lg-4 m-0">
                           <FormGroup>
                             <Label htmlFor="exampleDate">Start Date</Label>
-                            <Input
+                            {/* <Input
                               type="date"
                               name="date"
                               id="exampleDate"
                               placeholder=""
                               onChange={this.handleStartDateChange}
-                            />
+                            /> */}
+                            <div className="d-flex align-items-center">
+                              <Input
+                                type="date"
+                                name="date"
+                                id="exampleDate"
+                                placeholder=""
+                                value={this.state.startDate}
+                                onChange={this.handleStartDateChange}
+                              />
+                              {/* {this.state.startDate && (
+                                <span
+                                  style={{ cursor: "pointer", color: "red" }}
+                                  class="input-group-btn"
+                                  onClick={() =>
+                                    this.setState({ startDate: "" })
+                                  }
+                                >
+                                  <i
+                                    class="fa fa-times fa-fw"
+                                    aria-hidden="true"
+                                  ></i>
+                                </span>
+                              )} */}
+                            </div>
                           </FormGroup>
                         </div>
                         <div className="col-lg-4">
                           <FormGroup>
                             <Label htmlFor="exampleDate">End Date</Label>
-                            <Input
+                            {/* <Input
                               type="date"
                               name="date"
                               id="exampleDate"
                               placeholder=""
                               min={startDate} // Set min attribute dynamically
                               onChange={this.handleEndDateChange}
-                            />
+                            /> */}
+                            <div className="d-flex align-items-center">
+                              <Input
+                                type="date"
+                                name="date"
+                                id="exampleDate"
+                                placeholder=""
+                                min={startDate}
+                                value={this.state.endDate}
+                                onChange={this.handleEndDateChange}
+                              />
+                              {/* {this.state.endDate && (
+                                <span
+                                  style={{ cursor: "pointer", color: "red" }}
+                                  class="input-group-btn"
+                                  onClick={() => this.setState({ endDate: "" })}
+                                >
+                                  <i
+                                    class="fa fa-times fa-fw"
+                                    aria-hidden="true"
+                                  ></i>
+                                </span>
+                              )} */}
+                            </div>
                           </FormGroup>
                         </div>
                       </div>
