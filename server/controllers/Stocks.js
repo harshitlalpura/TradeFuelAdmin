@@ -1594,3 +1594,26 @@ exports.fetchWorldIndices = async (req, res) => {
         });
 
 };
+
+// Fetch all transactions
+exports.getAllTransactions = async (req, res) => {
+    try {
+      const transactions = await Transactions.find();
+      res.status(200).json(transactions);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  };
+
+// Fetch Single Transactions
+exports.fetchTransaction = async (req, res) => {
+    console.log(">>>>", req.body)
+    try {
+        const transaction = await Transactions.findById(req.body.transaction_id);
+
+
+        res.json(transaction);
+    } catch (error) {
+        res.status(500).json({error: error.message});
+    }
+};

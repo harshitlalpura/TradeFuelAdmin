@@ -163,6 +163,8 @@ app.post('/fetchPortfolio', stocks.fetchPortfolio);
 app.post('/fetchTrandingStocks', stocks.fetchTrandingStocks);
 app.post('/fetchWorldIndices', stocks.fetchWorldIndices);
 
+app.get('/transaction', stocks.getAllTransactions);
+app.post('/viewTransaction', stocks.fetchTransaction)
 
 app.post('/fetchIntradayDataDhan', stocks.fetchIntradayData);
 app.post('/fetchHistoricalData', stocks.fetchIntradayData);

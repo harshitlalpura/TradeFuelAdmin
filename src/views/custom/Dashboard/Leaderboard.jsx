@@ -273,18 +273,23 @@ import moment from "moment";
 import Datatable from "react-bs-datatable";
 import { makeProtectedRequest } from "../api";
 import { Checkbox } from "../../../components";
+import {Link} from "react-router-dom";
 
 const headerEarning = [
   { title: "", prop: "checkbox", sortable: false, filterable: false },
   { title: "No", prop: "no", sortable: false, filterable: false },
   { title: "Name", prop: "user_name", sortable: true, filterable: true },
   { title: "Amount", prop: "totalProfit", sortable: true, filterable: true },
+  { title: "View", prop: "view", sortable: false, filterable: false },
+
 ];
 const headerVolume = [
   { title: "", prop: "checkbox", sortable: false, filterable: false },
   { title: "No", prop: "no", sortable: false, filterable: false },
   { title: "Name", prop: "user_name", sortable: true, filterable: true },
   { title: "Volume", prop: "totalQuantity", sortable: true, filterable: true },
+  { title: "View", prop: "view", sortable: false, filterable: false },
+
 ];
 const onSortFunction = {
   date(columnValue) {
@@ -302,6 +307,20 @@ const customLabels = {
   show: "Display ",
   entries: " rows",
   noResults: "There is no data to be displayed",
+};
+
+
+const ViewButton = (row) => {
+  const handleClick = () => {
+    localStorage.setItem('userId', row._id);
+    console.log("row>>",  row._id)
+  };
+
+  return (
+    <Link to="/profile" className="btn btn-primary btn-sm" onClick={handleClick}>
+      <i className="fa fa-eye"></i>
+    </Link>
+  );
 };
 
 class Leaderboard extends Component {
@@ -573,7 +592,9 @@ class Leaderboard extends Component {
                         tableBody={data.map((row, index) => ({
                           ...row,
                           no: index + 1,
-                          totalProfit: "₹" +  Number(row.totalProfit).toFixed(2)
+                          totalProfit: "₹" +  Number(row.totalProfit).toFixed(2),
+                          view: <ViewButton {...row}/>
+
                         }))}
                         keyName="leaderBoardTable"
                         tableClass="leader-board striped table-hover table-responsive"

@@ -61,8 +61,10 @@ class Banners extends React.Component {
     openBanner = (id) => {
 
         const {history} = this.props;
+        localStorage.setItem("bannerId", id)
+        history.push('/banner');
 
-        history.push('/banner', {banner_id: id});
+        // history.push('/banner', {banner_id: id});
     }
     deleteBanner = (id) => {
         try {

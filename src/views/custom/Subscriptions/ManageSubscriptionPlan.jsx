@@ -68,20 +68,27 @@ class ManageSubscriptionPlan extends React.Component {
         const {location} = this.props;
 
 
-        if (location.state) {
-            // Accessing the passed value from state
+        // if (location.state) {
+        //     // Accessing the passed value from state
 
-            if (location.state.plan_id) {
-                const plan_id = location.state.plan_id;
+        //     if (location.state.plan_id) {
+        //         const plan_id = location.state.plan_id;
+        //         console.log('Passed Value:', plan_id);
+        //         this.setState({plan_id: plan_id});
+        //         this.setState({mode: "update"});
+
+        //         this.fetchPlan(plan_id);
+        //     }
+        // }
+       
+        const plan_id =  localStorage.getItem("planId");
 
 
-                console.log('Passed Value:', plan_id);
-                this.setState({plan_id: plan_id});
-                this.setState({mode: "update"});
+        console.log('Passed Value:', plan_id);
+        this.setState({plan_id: plan_id});
+        this.setState({mode: "update"});
 
-                this.fetchPlan(plan_id);
-            }
-        }
+        this.fetchPlan(plan_id);
     }
 
     fetchPlan = (plan_id) => {

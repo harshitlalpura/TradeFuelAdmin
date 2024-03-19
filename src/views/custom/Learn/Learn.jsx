@@ -58,8 +58,10 @@ class Learn extends React.Component {
     openLearn = (id) => {
 
         const {history} = this.props;
+        localStorage.setItem("learnId", id)
+        history.push('/managelearn');
 
-        history.push('/managelearn', {learn_id: id});
+        // history.push('/managelearn', {learn_id: id});
     }
     deleteLearn = (id) => {
         try {

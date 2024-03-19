@@ -254,14 +254,14 @@ class Header extends React.Component {
                                 <i className="i-menu"></i>
                             </button>
                         </div>
-                        <Dropdown nav isOpen={this.state.notificationsddOpen}
+                        {/* <Dropdown nav isOpen={this.state.notificationsddOpen}
                                   toggle={(e) => this.notificationsddToggle(e)} className="navbardd">
                             <DropdownToggle caret nav>
                                 <i className="i-bell"></i>
                                 <span className="badge badge-pill badge-primary">7</span>
                             </DropdownToggle>
                             <Notifications notifications={notifications}/>
-                        </Dropdown>
+                        </Dropdown> */}
 
                         <NavbarBrand href="/">{this.getBrand()}</NavbarBrand>
 
@@ -278,8 +278,8 @@ class Header extends React.Component {
                                     <span>{this.state.profilename}</span>
                                 </DropdownToggle>
                                 <DropdownMenu right>
-                                    <DropdownItem tag="a"><i className="i-wrench" href="#!"></i> Settings</DropdownItem>
-                                    <DropdownItem tag="a"><i className="i-user" href="#!"></i> Profile</DropdownItem>
+                                    {/* <DropdownItem tag="a"><i className="i-wrench" href="#!"></i> Settings</DropdownItem>
+                                    <DropdownItem tag="a"><i className="i-user" href="#!"></i> Profile</DropdownItem> */}
                                     <DropdownItem tag="a" onClick={this.logout} className="" href="#!"><i
                                         className="i-lock"></i> Logout</DropdownItem>
                                 </DropdownMenu>

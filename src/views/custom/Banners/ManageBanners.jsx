@@ -89,22 +89,29 @@ class ManageBanners extends React.Component {
         const {location} = this.props;
 
 
-        if (location.state) {
-            // Accessing the passed value from state
+        // if (location.state) {
+        //     // Accessing the passed value from state
 
-            if (location.state.banner_id) {
-                const banner_id = location.state.banner_id;
+        //     if (location.state.banner_id) {
+        //         const banner_id = location.state.banner_id;
 
-                // Accessing the passed value from query parameters
-                // const queryParams = new URLSearchParams(location.search);
-                // const passedValue = queryParams.get('passedValue');
-                console.log('Passed Value:', banner_id);
-                this.setState({banner_id: banner_id});
-                this.setState({mode: "update"});
+        //         // Accessing the passed value from query parameters
+        //         // const queryParams = new URLSearchParams(location.search);
+        //         // const passedValue = queryParams.get('passedValue');
+        //         console.log('Passed Value:', banner_id);
+        //         this.setState({banner_id: banner_id});
+        //         this.setState({mode: "update"});
 
-                this.fetchBanner(banner_id);
-            }
-        }
+        //         this.fetchBanner(banner_id);
+        //     }
+        // }
+       
+        const banner_id = localStorage.getItem("bannerId");
+        this.setState({banner_id: banner_id});
+        this.setState({mode: "update"});
+
+        this.fetchBanner(banner_id);
+
     }
 
     fetchBanner = (banner_id) => {

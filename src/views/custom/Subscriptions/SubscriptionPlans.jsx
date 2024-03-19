@@ -60,8 +60,10 @@ class SubscriptionPlans extends React.Component {
     openPlan = (id) => {
 
         const {history} = this.props;
+        localStorage.setItem("planId", id)
+        history.push('/createplan');
 
-        history.push('/createplan', {plan_id: id});
+        // history.push('/createplan', {plan_id: id});
     }
     deletePlan = (id) => {
 

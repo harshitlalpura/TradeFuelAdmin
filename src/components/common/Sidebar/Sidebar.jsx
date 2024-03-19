@@ -176,13 +176,13 @@ class Sidebar extends React.Component{
             <div className="sidebar menubar" data-color="black">
 
                 <div className="logo">
-                    <a href="/" className="logo-mini">
+                    <a href="/dashboard" className="logo-mini">
                         <div className="logo-img">
                             <img src={logomini} alt="react-logo" className="light-logo" />
                             <img src={logominidark} alt="react-logo" className="dark-logo"/>
                         </div>
                     </a>
-                    <a href="/" className="logo-full">
+                    <a href="/dashboard" className="logo-full">
                             <img src={logofull} alt="react-logo" className="light-logo"/>
                             <img src={logofulldark} alt="react-logo" className="dark-logo"/>
                     </a>

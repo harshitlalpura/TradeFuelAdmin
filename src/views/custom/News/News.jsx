@@ -58,8 +58,10 @@ class News extends React.Component {
     openNews = (id) => {
 
         const {history} = this.props;
+        localStorage.setItem("newsId", id)
+        history.push('/managenews');
 
-        history.push('/managenews', {news_id: id});
+        // history.push('/managenews', {news_id: id});
     }
     deleteNews = (id) => {
         try {

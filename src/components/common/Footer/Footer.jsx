@@ -12,7 +12,9 @@ class Footer extends React.Component{
                 <Container fluid={this.props.fluid ? true:false}>
 
                     <div className="copyright">
-                        &copy; {1900 + (new Date()).getYear()}, <a href="https://themeforest.net/user/themepassion/portfolio" target="_blank" rel="noopener noreferrer">Tradefuel</a>
+                        {/* &copy; {1900 + (new Date()).getYear()}, <a href="https://themeforest.net/user/themepassion/portfolio" target="_blank" rel="noopener noreferrer">Tradefuel</a> */}
+                        &copy; {1900 + (new Date()).getYear()}, <a href="#" rel="noopener noreferrer">Tradefuel</a>
+
                     </div>
                 </Container>
             </footer>
