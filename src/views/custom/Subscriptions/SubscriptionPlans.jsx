@@ -1,4 +1,6 @@
 import moment from 'moment'; // Example for onSort prop
+import "moment-timezone";
+
 import React from 'react'; // Import React
 //import { render } from 'react-dom'; // Import render method
 import Datatable from 'react-bs-datatable'; // Import this package
@@ -10,6 +12,8 @@ import plans from './plans.js'
 import {Button} from "../../../components";
 import {Link} from "react-router-dom";
 import {makeProtectedRequest} from "../api";
+
+const userTimeZone = moment.tz.guess(); // Guess the user's timezone
 
 const header = [
     {title: 'No', prop: 'plan_no', sortable: false, filterable: false},
@@ -138,7 +142,7 @@ class SubscriptionPlans extends React.Component {
                                     <h1 className="title">Subscription Plans</h1>
                                 </div>
                                 <div className="float-right">
-                                    <Link className="btn btn-primary btn-sm mt-3" to="/createplan">Create Plan</Link>
+                                    <Link className="btn btn-primary btn-sm mt-3" to="/createplan" onClick={()=>localStorage.removeItem("planId")}>Create Plan</Link>
                                 </div>
                             </div>
 
@@ -159,7 +163,7 @@ class SubscriptionPlans extends React.Component {
                                                     tableBody={plans.map((row,index) => ({
                                                         ...row,
                                                         plan_no:(index+1),
-                                                        plan_created_at: moment.tz(row.plan_created_at,'UTC').format("DD/MM/YYYY h:mm A"),
+                                                        plan_created_at: moment.tz(row.plan_created_at,userTimeZone).format("DD/MM/YYYY h:mm A"),
 
                                                         view:         <Button className="btn btn-primary btn-sm" onClick={() => this.openPlan(row._id)}><i
                                                             className="fa fa-eye"></i> </Button>,

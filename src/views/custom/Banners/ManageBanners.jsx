@@ -107,11 +107,13 @@ class ManageBanners extends React.Component {
         // }
        
         const banner_id = localStorage.getItem("bannerId");
-        this.setState({banner_id: banner_id});
-        this.setState({mode: "update"});
-
-        this.fetchBanner(banner_id);
-
+        if(banner_id){
+            this.setState({banner_id: banner_id});
+            this.setState({mode: "update"});
+    
+            this.fetchBanner(banner_id);
+    
+        }
     }
 
     fetchBanner = (banner_id) => {

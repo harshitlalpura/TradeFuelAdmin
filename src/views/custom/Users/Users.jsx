@@ -11,6 +11,7 @@ import {Formik} from "formik";
 import * as Yup from "yup";
 import AlertModal from "../../../components/custom/AlertModal/AlertModal";
 
+const userTimeZone = moment.tz.guess(); // Guess the user's timezone
 
 const header = [
     {title: '', prop: 'checkbox', sortable: false, filterable: false},
@@ -267,6 +268,14 @@ class Users extends React.Component {
     render() {
 
         const {users} = this.state;
+        users.sort((a, b) => {
+            // Convert 'user_created_at' strings to Date objects
+            const dateA = new Date(a.user_created_at);
+            const dateB = new Date(b.user_created_at);
+            
+            // Compare the dates
+            return dateB - dateA; // For descending order, use dateB - dateA
+        });
 
         return (
             <div>
@@ -313,7 +322,7 @@ class Users extends React.Component {
                                                             />
                                                         ),
                                                         user_no: (index + 1),
-                                                        user_created_at: moment.tz(row.user_created_at, 'UTC').format("DD/MM/YYYY h:mm A"),
+                                                        user_created_at: moment.tz(row.user_created_at, userTimeZone).format("DD/MM/YYYY h:mm A"),
 
                                                         block: row.user_block ?
                                                             <Button className="btn btn-primary btn-sm"
@@ -330,10 +339,10 @@ class Users extends React.Component {
                                                             className="fa fa-trash"></i></Button>
                                                     }))}
                                                     keyName="userTable"
-                                                    tableClass="striped table-hover table-responsive"
+                                                    tableClass="user-table striped table-hover table-responsive"
                                                     rowsPerPage={20}
                                                     rowsPerPageOption={[5, 10, 15, 20]}
-                                                    initialSort={{prop: "user_created_at", isAscending: true}}
+                                                    initialSort={{prop: "user_no", isAscending: true}}
                                                     onSort={onSortFunction}
                                                     labels={customLabels}
                                                 />

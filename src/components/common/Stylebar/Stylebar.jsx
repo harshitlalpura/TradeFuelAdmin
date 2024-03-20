@@ -74,7 +74,7 @@ class Stylebar extends React.Component{
             <div className="sidebar stylebar">
                 
 
-                                <div className="navbar-toggle style-toggle" onClick={() => this.openStyle()}>
+                                <div className="navbar-toggle style-toggle d-none" onClick={() => this.openStyle()}>
                                             <i className="i-settings"></i>
                                 </div>
                 <div className="sidebar-wrapper" ref="stylebar">

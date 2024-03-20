@@ -20,6 +20,8 @@ import { makeProtectedRequest } from "../api.js";
 //     {title: 'Date/Time', prop: 'txn_datetime', sortable: true, filterable: true},
 //     {title: 'View', prop: 'view', sortable: false, filterable: false}
 // ];
+const userTimeZone = moment.tz.guess(); // Guess the user's timezone
+
 const header = [
   { title: "No", prop: "no", sortable: false, filterable: false },
   { title: "User", prop: "user_name", sortable: true, filterable: true },
@@ -162,6 +164,8 @@ class Transactions extends React.Component {
   // date wise filter
   handleStartDateChange = (e) => {
     this.setState({ startDate: e.target.value });
+    this.setState({ endDate: "" });
+
   };
 
   handleEndDateChange = (e) => {
@@ -318,7 +322,7 @@ class Transactions extends React.Component {
                                 row.transactionType == "B" ? "Buy" : "Sell",
                               stockSymbol: row.stockSymbol.split(".")[0],
                               createdAt: moment
-                                .tz(row.createdAt, "UTC")
+                                .tz(row.createdAt, userTimeZone)
                                 .format("DD/MM/YYYY h:mm A"),
                               txn_type: <TxnType {...row} />,
                               view: <ViewButton {...row} />,

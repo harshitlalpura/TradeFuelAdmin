@@ -11,6 +11,7 @@ import * as Yup from "yup";
 import {makeProtectedDataRequest, makeProtectedRequest} from "../api";
 import AlertModal from "../../../components/custom/AlertModal/AlertModal";
 
+const userTimeZone = moment.tz.guess(); // Guess the user's timezone
 
 const header = [
     {title: 'No', prop: 'notification_no', sortable: false, filterable: false},
@@ -376,7 +377,7 @@ class Notifications extends React.Component {
                                                         notification_no: (index + 1),
                                                         notification_group: (row.notification_group) ? row.notification_group.notification_group_name : "All",
                                                         notification_scheduled: row.notification_scheduled ? 'Yes' : 'No',
-                                                        notification_datetime: row.notification_datetime ? moment.tz(row.notification_datetime, 'UTC').format("DD/MM/YYYY h:mm A") : "-",
+                                                        notification_datetime: row.notification_datetime ? moment.tz(row.notification_datetime, userTimeZone).format("DD/MM/YYYY h:mm A") : moment.tz(row.notification_created_at, userTimeZone).format("DD/MM/YYYY h:mm A"),
                                                         view: <Button
                                                             onClick={() => this.fetchNotification(`${row._id}`)}
                                                             className="btn btn-primary btn-sm"><i
@@ -411,7 +412,7 @@ class Notifications extends React.Component {
                 <Modal isOpen={this.state.modal} toggle={this.toggle} className={this.props.className}>
                     <ModalHeader toggle={this.toggle}>Notification</ModalHeader>
                     <ModalBody>
-                        <div className="row">
+                    <div className="row" style={this.state.mode === 'view' ? { pointerEvents: "none" } : {}}>
                             <div className="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
                                 <Formik
                                     innerRef={this.formikRef}

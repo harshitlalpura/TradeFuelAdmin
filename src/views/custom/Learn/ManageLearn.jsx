@@ -148,11 +148,13 @@ class ManageLearn extends React.Component {
 
         const {location} = this.props;
 
-        const news_id = localStorage.getItem("learnId");
-        this.setState({ news_id: news_id });
-        this.setState({ mode: "update" });
-    
-        this.fetchLearn(news_id);
+        const learn_id = localStorage.getItem("learnId");
+        if(learn_id){
+            this.setState({ learn_id: learn_id });
+            this.setState({ mode: "update" });
+        
+            this.fetchLearn(learn_id);
+        }
         // if (location.state) {
         //     // Accessing the passed value from state
 

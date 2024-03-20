@@ -11,6 +11,8 @@ import {Button} from "../../../components";
 import {Link} from "react-router-dom";
 import {makeProtectedRequest} from "../api";
 
+const userTimeZone = moment.tz.guess(); // Guess the user's timezone
+
 const header = [
     {title: 'No', prop: 'banner_no', sortable: false, filterable: false},
     {title: 'Name', prop: 'banner_name', sortable: true, filterable: true},
@@ -138,7 +140,7 @@ class Banners extends React.Component {
                                     <h1 className="title">Banners</h1>
                                 </div>
                                 <div className="float-right">
-                                    <Link className="btn btn-primary btn-sm mt-3" to="/banner">Create
+                                    <Link className="btn btn-primary btn-sm mt-3" to="/banner" onClick={()=>localStorage.removeItem("bannerId")}>Create
                                         Banner</Link>
                                 </div>
                             </div>
@@ -161,8 +163,8 @@ class Banners extends React.Component {
                                                         ...row,
                                                         banner_no: (index + 1),
 
-                                                        banner_created_at: moment.tz(row.banner_created_at,'UTC').format("DD/MM/YYYY h:mm A"),
-                                                        banner_expires_at: moment.tz(row.banner_expires_at,'UTC').format("DD/MM/YYYY"),
+                                                        banner_created_at: moment.tz(row.banner_created_at,userTimeZone).format("DD/MM/YYYY h:mm A"),
+                                                        banner_expires_at: moment.tz(row.banner_expires_at,userTimeZone).format("DD/MM/YYYY"),
 
                                                         view: <Button className="btn btn-primary btn-sm"
                                                                       onClick={() => this.openBanner(`${row._id}`)}><i

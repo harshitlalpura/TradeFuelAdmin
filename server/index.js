@@ -87,7 +87,7 @@ const upload = multer({dest: 'uploads/'});
 // Replace <your_mongodb_uri> with your actual MongoDB URI
 
 
-//const mongoUri = "mongodb://tradefuel:password@68.178.170.233:27017/tradefuel";
+// const mongoUri = "mongodb://tradefuel:password@68.178.170.233:27017/tradefuel";
 const mongoUri = "mongodb://localhost:27017/tradefuel";
 const SECRET_KEY = "3f3d3a8abf6011e227bc3c3d3a8abf6011e227bc3c3d3a8abf6011e227bc3c3d";
 //const mongoUri = process.env.MONGODB_SERVER;
@@ -152,6 +152,7 @@ app.use('/fetchPortfolio', cacheMiddleware);
 app.use('/fetchTrandingStocks', cacheMiddleware);
 app.use('/fetchWorldIndices', cacheMiddleware);
 
+app.get('/subscription', user.fetchAllSubscriber)
 app.post('/fetchLeaderboardByEarnings', user.fetchLeaderboardByEarnings);
 app.post('/fetchLeaderboardByVolume', user.fetchLeaderboardByVolume);
 app.post('/fetchCurrentPrice', stocks.fetchCurrentPrice);

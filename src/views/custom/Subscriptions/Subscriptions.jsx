@@ -131,10 +131,14 @@ class Subscriptions extends React.Component {
             dropdownVisitorOpen: false,
             dropdownSubscriptionOpen: false,
             weeklyVisitorData: [],
+            weeklySubscriptionData:[],
             monthlyVistorData: [],
+            monthlySubscriptionData: [],
             activeMarketTab: '1',
             visitors: [],
+            subscriptions:[],
             visitorChartType: "W",
+            subscriptionChartType:"W",
             gradientFill: null,
             gradientStroke: null
 
@@ -184,7 +188,7 @@ class Subscriptions extends React.Component {
 
 
         this.fetchVisitors();
-
+        this.fetchUsers()
     }
 
     fetchVisitors = () => {
@@ -391,11 +395,165 @@ class Subscriptions extends React.Component {
         };
     };
 
+    // fetch user for get info of subscriptions
+
+    generateWeeklySubscriptionChartData = () => {
+        const startDate = moment().startOf('week');
+        const endDate = moment().endOf('week');
+        // console.log(startDate.format("DD-MM-YYYY")+" "+endDate.format("DD-MM-YYYY"));
+
+
+        const weeklyLabels = [];
+        const weeklyCounts = [];
+
+        let currentDate = startDate;
+        while (currentDate <= endDate) {
+            const formattedDate = currentDate.format('dddd');
+            weeklyLabels.push(formattedDate);
+            
+            const count = this.state.subscriptions.filter((user) => {
+                if(user.user_subscription !== ""){
+                const userDate = moment(user.user_created_at);
+                // return userDate.isSame(currentDate, 'day');
+ 
+                //  console.log(userDate.format("DD-MM-YYYY")+" "+currentDate.format("DD-MM-YYYY"));
+                 return (userDate.format("DD-MM-YYYY")==currentDate.format("DD-MM-YYYY"));
+             }
+            }).length;
+
+            weeklyCounts.push(count);
+
+            currentDate = currentDate.clone().add(1, 'day');
+        }
+
+        // subscription
+        // makeProtectedRequest('/subscription', 'GET', {})
+        // .then((response) => {
+        //     // Handle successful response
+            
+
+        //     if (response.success) {
+        //         console.log(">>", response)
+        //     }})
+
+        return {
+            labels: weeklyLabels,
+            datasets: [
+                {
+                    label: 'Weekly User Subscriptions',
+                    data: weeklyCounts,
+                    borderColor: "rgba(255, 138, 101,1)",
+                    pointBorderColor: "#FFF",
+                    pointBackgroundColor: "rgba(255, 138, 101,1)",
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 4,
+                    pointHoverBorderWidth: 1,
+                    pointRadius: 4,
+                    fill: true,
+                    backgroundColor: this.state.gradientFill,
+                    borderWidth: 2,
+                },
+            ],
+        };
+    };
+
+    generateMonthlySubSciberChartData = () => {
+        const startDate = moment().startOf('year');
+        const endDate = moment().endOf('year');
+
+        console.log(startDate.format("YYYY-MM-DD")+" "+endDate.format("YYYY-MM-DD"));
+        const monthlyLabels = [];
+        const monthlyCounts = [];
+
+        let currentDate = startDate;
+        while (currentDate <= endDate) {
+            const formattedDate = currentDate.format('MMM');
+            monthlyLabels.push(formattedDate);
+
+            const count = this.state.subscriptions.filter((user) => {
+               if(user.user_subscription !== ""){
+                const userDate = moment(user.user_created_at);
+
+                return (userDate.format("MM")==currentDate.format("MM"));
+               }
+
+            }).length;
+
+
+            monthlyCounts.push(count);
+
+            currentDate = currentDate.clone().add(1, 'month');
+        }
+
+
+        return {
+            labels: monthlyLabels,
+            datasets: [
+                {
+                    label: 'Monthly User Subscriptions',
+                    data: monthlyCounts,
+                    borderColor: "rgba(255, 138, 101,1)",
+                    pointBorderColor: "#FFF",
+                    pointBackgroundColor: "rgba(255, 138, 101,1)",
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 4,
+                    pointHoverBorderWidth: 1,
+                    pointRadius: 4,
+                    fill: true,
+                    backgroundColor: this.state.gradientFill,
+                    borderWidth: 2,
+                },
+            ],
+        };
+    };
+
+    changeSubscriptionFilter = (type) => {
+
+        this.setState({subscriptionChartType: type});
+    }
+    fetchUsers = () => {
+        try {
+
+            makeProtectedRequest('/fetchUsers', 'GET', {})
+                .then((response) => {
+                    // Handle successful response
+                    
+
+                    if (response.success) {
+                        console.log(">>", response.data)
+                        this.setState({subscriptions: response.data});
+                        const weeklyData = this.generateWeeklySubscriptionChartData();
+                        this.setState({weeklySubscriptionData: weeklyData});
+
+
+                        const monthlyData = this.generateMonthlySubSciberChartData();
+                        this.setState({monthlySubscriptionData: monthlyData});
+
+                        console.log("weeklyData", weeklyData);
+                        console.log("monthlyData", monthlyData);
+
+
+                    } else {
+
+                    }
+
+                })
+                .catch((error) => {
+                    // Handle error
+                    console.error(error);
+                });
+
+
+        } catch (error) {
+            // this.setState({message: 'Error logging in'});
+
+        }
+    }
 
     render() {
 
 
-        const {weeklyVisitorData, visitorChartType, monthlyVisitorData} = this.state;
+        const {weeklyVisitorData, visitorChartType, monthlyVisitorData, subscriptionChartType, monthlySubscriptionData, weeklySubscriptionData} = this.state;
         return (
             <div>
                 <div className="content">
@@ -495,8 +653,12 @@ class Subscriptions extends React.Component {
                                                                                 Filter
                                                                             </DropdownToggle>
                                                                             <DropdownMenu>
-                                                                                <DropdownItem>Weekly</DropdownItem>
-                                                                                <DropdownItem>Monthly</DropdownItem>
+                                                                                {/* <DropdownItem>Weekly</DropdownItem>
+                                                                                <DropdownItem>Monthly</DropdownItem> */}
+                                                                                 <DropdownItem
+                                                                                    onClick={() => this.changeSubscriptionFilter("W")}>Weekly</DropdownItem>
+                                                                                <DropdownItem
+                                                                                    onClick={() => this.changeSubscriptionFilter("M")}>Monthly</DropdownItem>
 
                                                                             </DropdownMenu>
                                                                         </Dropdown>
@@ -506,9 +668,14 @@ class Subscriptions extends React.Component {
                                                                         <div className="chart-area"
                                                                              style={{height: 400 + 'px'}}>
 
-                                                                            <Line
+                                                                            {/* <Line
                                                                                 data={dashboardSubscriptionChart.data}
-                                                                                options={dashboardSubscriptionChart.options}/>
+                                                                                options={dashboardSubscriptionChart.options}/> */}
+                                                                                 {subscriptionChartType == "W" ?  <Line ref={this.chartRef}
+                                                                                  data={weeklySubscriptionData}
+                                                                                  options={gradientChartOptionsConfiguration}/>:<Line ref={this.chartRef}
+                                                                                                                                      data={monthlySubscriptionData}
+                                                                                                                                      options={gradientChartOptionsConfiguration}/>}
                                                                         </div>
                                                                     </Col>
                                                                 </Row>

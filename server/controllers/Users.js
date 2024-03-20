@@ -495,3 +495,16 @@ exports.createTransaction = async (req, res) => {
         res.status(500).json({success: false, error: error.message});
     }
 };
+
+
+// for fetch all subscriber
+exports.fetchAllSubscriber = async (req, res) => {
+    try {
+        const user = await Subscriptions.find();
+
+
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({error: error.message});
+    }
+};

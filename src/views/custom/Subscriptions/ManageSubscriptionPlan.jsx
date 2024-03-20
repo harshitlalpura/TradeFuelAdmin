@@ -82,13 +82,13 @@ class ManageSubscriptionPlan extends React.Component {
         // }
        
         const plan_id =  localStorage.getItem("planId");
-
-
-        console.log('Passed Value:', plan_id);
-        this.setState({plan_id: plan_id});
-        this.setState({mode: "update"});
-
-        this.fetchPlan(plan_id);
+        if(plan_id){
+            console.log('Passed Value:', plan_id);
+            this.setState({plan_id: plan_id});
+            this.setState({mode: "update"});
+    
+            this.fetchPlan(plan_id);
+        }
     }
 
     fetchPlan = (plan_id) => {

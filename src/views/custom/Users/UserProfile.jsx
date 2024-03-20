@@ -144,9 +144,11 @@ class UserProfile extends React.Component {
     //   }
     // }
     let user_id = localStorage.getItem("userId");
-    this.setState({ user_id: user_id });
+    if(user_id){
+      this.setState({ user_id: user_id });
 
-    this.fetchUser(user_id);
+      this.fetchUser(user_id);
+    }
   }
 
   fetchUser = (id) => {
@@ -342,6 +344,8 @@ class UserProfile extends React.Component {
   // date wise filter
   handleStartDateChange = (e) => {
     this.setState({ startDate: e.target.value });
+    this.setState({ endDate: "" });
+
   };
 
   handleEndDateChange = (e) => {

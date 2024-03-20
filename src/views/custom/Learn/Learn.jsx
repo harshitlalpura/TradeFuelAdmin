@@ -10,6 +10,8 @@ import {Button} from "../../../components";
 import {Link} from "react-router-dom";
 import {makeProtectedRequest} from "../api";
 
+const userTimeZone = moment.tz.guess(); // Guess the user's timezone
+
 const header = [
     {title: 'No', prop: 'learn_no', sortable: false, filterable: false},
     {title: 'Title', prop: 'learn_title', sortable: true, filterable: true},
@@ -136,7 +138,7 @@ class Learn extends React.Component {
                                     <h1 className="title">Learn</h1>
                                 </div>
                                 <div className="float-right">
-                                    <Link className="btn btn-primary btn-sm mt-3" to="/managelearn">Create
+                                    <Link className="btn btn-primary btn-sm mt-3" to="/managelearn" onClick={()=>localStorage.removeItem("learnId")}>Create
                                         Learn</Link>
                                 </div>
                             </div>
@@ -161,7 +163,7 @@ class Learn extends React.Component {
                                                         ...row,
                                                         learn_no: (index + 1),
                                                         learn_category: row.learn_category.learn_cat_name,
-                                                        learn_created_at: moment.tz(row.learn_created_at,'UTC').format("DD/MM/YYYY h:mm A"),
+                                                        learn_created_at: moment.tz(row.learn_created_at,userTimeZone).format("DD/MM/YYYY h:mm A"),
 
                                                         view: <Button className="btn btn-primary btn-sm"
                                                                       onClick={() => this.openLearn(`${row._id}`)}><i

@@ -147,10 +147,12 @@ class ManageNews extends React.Component {
     //     }
     // }
     const news_id = localStorage.getItem("newsId");
-    this.setState({ news_id: news_id });
-    this.setState({ mode: "update" });
-
-    this.fetchNews(news_id);
+      if(news_id){
+        this.setState({ news_id: news_id });
+        this.setState({ mode: "update" });
+    
+        this.fetchNews(news_id);
+      }
   }
 
   fetchNews = (news_id) => {

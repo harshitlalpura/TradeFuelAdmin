@@ -10,6 +10,8 @@ import {Button} from "../../../components";
 import {Link} from "react-router-dom";
 import {makeProtectedRequest} from "../api";
 
+const userTimeZone = moment.tz.guess(); // Guess the user's timezone
+
 const header = [
     {title: 'No', prop: 'news_no', sortable: false, filterable: false},
     {title: 'Title', prop: 'news_title', sortable: true, filterable: true},
@@ -136,7 +138,7 @@ class News extends React.Component {
                                     <h1 className="title">News</h1>
                                 </div>
                                 <div className="float-right">
-                                    <Link className="btn btn-primary btn-sm mt-3" to="/managenews">Create
+                                    <Link className="btn btn-primary btn-sm mt-3" to="/managenews" onClick={()=>localStorage.removeItem("newsId")}>Create
                                         News</Link>
                                 </div>
                             </div>
@@ -159,7 +161,7 @@ class News extends React.Component {
                                                         ...row,
                                                         news_no: (index + 1),
 
-                                                        news_created_at: moment.tz(row.news_created_at,'UTC').format("DD/MM/YYYY h:mm A"),
+                                                        news_created_at: moment.tz(row.news_created_at,userTimeZone).format("DD/MM/YYYY h:mm A"),
 
                                                         view: <Button className="btn btn-primary btn-sm"
                                                                       onClick={() => this.openNews(`${row._id}`)}><i
