@@ -14,6 +14,7 @@ const NotificationSchema = new mongoose.Schema({
     notification_created_at: { type: Date, default: moment.tz('UTC').toDate() },
     notification_updated_at: { type: Date, default: moment.tz('UTC').toDate() },
     notification_trash: { type: Boolean, default: false },
+    notification_active:{type:Boolean, default:true},
 });
 
 NotificationSchema.pre('save', async function (next) {

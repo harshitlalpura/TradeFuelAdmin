@@ -240,11 +240,11 @@ class Feedbacks extends React.Component {
 
                         <Datatable
                           tableHeader={header}
-                          tableBody={filteredFeedback.map((row, index) => ({
+                          tableBody={filteredFeedback&&filteredFeedback.length > 0&&filteredFeedback.map((row, index) => ({
                             ...row,
                             feedback_no: index + 1,
-                            user_name: row.user.user_name,
-                            customersubscription: "",
+                            user_name: row.user&&row.user.user_name,
+                            customersubscription: row.user&& row.user.user_subscription,
                             feedback_star: <Star {...row} />,
                             feedback_created_at: moment
                               .tz(row.feedback_created_at)

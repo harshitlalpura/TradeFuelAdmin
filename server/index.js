@@ -7,7 +7,7 @@ const plans = require('./controllers/Plans');
 const feedback = require('./controllers/Feedbacks');
 const settings = require('./controllers/Settings');
 const stocks = require('./controllers/Stocks');
-
+const coin = require('./controllers/Coin')
 const banner = require('./controllers/Banners');
 const news = require('./controllers/News');
 const learn = require('./controllers/Learn');
@@ -152,6 +152,9 @@ app.use('/fetchPortfolio', cacheMiddleware);
 app.use('/fetchTrandingStocks', cacheMiddleware);
 app.use('/fetchWorldIndices', cacheMiddleware);
 
+app.post('/coinSave', coin.coinSave)
+app.get('/fetchAllCoin', coin.getAllCoins)
+app.get('/fetchCoinById',  coin.getCoinById)
 app.get('/subscription', user.fetchAllSubscriber)
 app.post('/fetchLeaderboardByEarnings', user.fetchLeaderboardByEarnings);
 app.post('/fetchLeaderboardByVolume', user.fetchLeaderboardByVolume);

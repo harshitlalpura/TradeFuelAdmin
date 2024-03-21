@@ -36,6 +36,10 @@ exports.saveNotification = async (req, res) => {
             notificationData.notification_datetime=moment.tz('UTC').toDate();
         }
 
+        if(notificationData.notification_datetime=="" && notificationData.notification_group){
+            notificationData.notification_datetime=moment.tz('UTC').toDate();
+        }
+
         const notification = new Notifications(notificationData);
         await notification.save();
 

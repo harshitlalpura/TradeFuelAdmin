@@ -29,6 +29,12 @@ import * as Yup from "yup";
 
 var IMGDIR = process.env.REACT_APP_IMGDIR;
 
+const rewardHeader = [
+  { title: "No", prop: "no", sortable: false, filterable: false },
+  { title: "Type", prop: "coin_type", sortable: false, filterable: false },
+  { title: "Amount", prop: "coin_amount", sortable: false, filterable: false },
+  { title: "Date/Time", prop: "datetime", sortable: true, filterable: true },
+];
 const header = [
   { title: "No", prop: "txn_no", sortable: false, filterable: false },
   { title: "Type", prop: "txn_type", sortable: true, filterable: false },
@@ -100,6 +106,7 @@ class UserProfile extends React.Component {
 
     this.state = {
       transactions: [],
+      rewardHistory: [],
       isOpen: false,
       modal: false,
       coinModel: false,
@@ -144,10 +151,11 @@ class UserProfile extends React.Component {
     //   }
     // }
     let user_id = localStorage.getItem("userId");
-    if(user_id){
+    if (user_id) {
       this.setState({ user_id: user_id });
 
       this.fetchUser(user_id);
+      this.fetchAllCoin();
     }
   }
 
@@ -237,15 +245,20 @@ class UserProfile extends React.Component {
       this.setState({ message: "Error logging in" });
     }
   };
+
   // open add wallat balance model
   toggle() {
     this.setState({ modal: !this.state.modal });
   }
+
+  
   // open add coin model
   coinToggle() {
     this.setState({ coinModel: !this.state.coinModel });
     this.setState({ coninValueError: false });
     this.setState({ selectDropdownError: false });
+    this.setState({ coinValue: "" });
+    this.setState({ selectedOption: null });
   }
 
   toggleDropdown = () => {
@@ -322,6 +335,7 @@ class UserProfile extends React.Component {
     }
   };
 
+  // save coin
   handleCoinSave = () => {
     if (
       this.state.coinValue !== undefined &&
@@ -331,8 +345,36 @@ class UserProfile extends React.Component {
       this.state.selectedOption !== null &&
       this.state.selectedOption !== ""
     ) {
-      console.log("coin save", this.state.coinValue);
-      console.log("selectedOption", this.state.selectedOption.label);
+      // console.log("coin save", this.state.coinValue);
+      // console.log("selectedOption", this.state.selectedOption.label);
+      try {
+        makeProtectedRequest("/coinSave", "POST", {
+          user_id: this.state.user_id,
+          amount: Number(this.state.coinValue),
+          coin_type: this.state.selectedOption.value,
+        })
+          .then((response) => {
+            if (response.success) {
+              console.log(">>", response.data);
+              Swal.fire({
+                text: "Coin Add Successfully.",
+                icon: "Success",
+              });
+              this.setState({ coinValue: "" });
+              this.setState({ selectedOption: null });
+              this.fetchAllCoin();
+              this.coinToggle();
+            } else {
+              console.log("else part");
+            }
+          })
+          .catch((error) => {
+            // Handle error
+            console.error(error);
+          });
+      } catch (error) {
+        this.setState({ message: "Error" });
+      }
     } else {
       this.setState({ coninValueError: this.state.coinValue ? false : true });
       this.setState({
@@ -341,11 +383,32 @@ class UserProfile extends React.Component {
     }
   };
 
+  // get all coin
+  fetchAllCoin = () => {
+    try {
+      makeProtectedRequest("/fetchAllCoin", "GET", {})
+        .then((response) => {
+          if (response.success) {
+            console.log(">>", response.data);
+            this.setState({ rewardHistory: response.data });
+          } else {
+            console.log("else part");
+          }
+        })
+        .catch((error) => {
+          // Handle error
+          console.error(error);
+        });
+    } catch (error) {
+      // this.setState({ message: "Error" });
+      console.log(error);
+    }
+  };
+
   // date wise filter
   handleStartDateChange = (e) => {
     this.setState({ startDate: e.target.value });
     this.setState({ endDate: "" });
-
   };
 
   handleEndDateChange = (e) => {
@@ -363,8 +426,9 @@ class UserProfile extends React.Component {
       coinValue,
       selectedOption,
       learnCategory,
+      rewardHistory,
     } = this.state;
-    // console.log("response>>", user)
+
     const filteredTransactions = transactions.filter((row) => {
       if (!startDate || !endDate) {
         return true; // No filtering if start or end date is not provided
@@ -618,10 +682,41 @@ class UserProfile extends React.Component {
                 <section className="box profile-page">
                   <div className="content-body">
                     <div className="col-12">
-                      <h4>Coin History:</h4>
+                      <h4>Rewards History:</h4>
                       <div className="clearfix"></div>
                     </div>
-                  </div>
+                    <div className="col-lg-12 dt-disp">
+                     
+                          <Datatable
+                            tableHeader={rewardHeader}
+                            tableBody={
+                              rewardHistory &&
+                              rewardHistory.length > 0 &&
+                              rewardHistory.map((row, index) => ({
+                                no: index + 1,
+                                coin_type:
+                                  row.coin_type == "C" ? "Credit" : "Debit",
+                                coin_amount: Number(row.coin_amount).toFixed(2),
+                                datetime: moment
+                                  .tz(row.createdAt, "UTC")
+                                  .format("DD/MM/YYYY h:mm A"),
+                                // view: <ViewButton {...row} />,
+                              }))
+                            }
+                            keyName="coinTable"
+                            tableClass="striped table-hover table-responsive"
+                            rowsPerPage={20}
+                            rowsPerPageOption={[5, 10, 15, 20]}
+                            initialSort={{ prop: "planno", isAscending: true }}
+                            onSort={onSortFunction}
+                            labels={customLabels}
+                            table-props={{
+                              search: false,
+                            }}
+                          />
+                        </div>
+                      </div>
+                   
                 </section>
               </div>
             </Col>
@@ -691,14 +786,14 @@ class UserProfile extends React.Component {
               <DropdownMenu>
                 <DropdownItem
                   onClick={() =>
-                    this.handleSelect({ value: 1, label: "Debit" })
+                    this.handleSelect({ value: "B", label: "Debit" })
                   }
                 >
                   Debit
                 </DropdownItem>
                 <DropdownItem
                   onClick={() =>
-                    this.handleSelect({ value: 2, label: "Credit" })
+                    this.handleSelect({ value: "C", label: "Credit" })
                   }
                 >
                   Credit

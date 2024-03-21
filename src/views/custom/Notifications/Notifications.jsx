@@ -289,6 +289,11 @@ class Notifications extends React.Component {
         if (values.notification_group === "") {
             delete values.notification_group;
         }
+        if (values.notification_scheduled == false) {
+            values.notification_active = true;
+        } else {
+            values.notification_active = false;
+        }
 
         this.setState({isOpen: true});
         var url = "/saveNotification";
@@ -377,7 +382,9 @@ class Notifications extends React.Component {
                                                         notification_no: (index + 1),
                                                         notification_group: (row.notification_group) ? row.notification_group.notification_group_name : "All",
                                                         notification_scheduled: row.notification_scheduled ? 'Yes' : 'No',
-                                                        notification_datetime: row.notification_datetime ? moment.tz(row.notification_datetime, userTimeZone).format("DD/MM/YYYY h:mm A") : moment.tz(row.notification_created_at, userTimeZone).format("DD/MM/YYYY h:mm A"),
+                                                        // notification_datetime: row.notification_datetime ? moment.tz(row.notification_datetime, userTimeZone).format("DD/MM/YYYY h:mm A") : moment.tz(row.notification_created_at, userTimeZone).format("DD/MM/YYYY h:mm A"),
+                                                        notification_datetime: moment.tz(row.notification_datetime, userTimeZone).format("DD/MM/YYYY h:mm A"),
+
                                                         view: <Button
                                                             onClick={() => this.fetchNotification(`${row._id}`)}
                                                             className="btn btn-primary btn-sm"><i
