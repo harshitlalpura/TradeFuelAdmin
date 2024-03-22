@@ -26,8 +26,8 @@ var IMGDIR = process.env.REACT_APP_IMGDIR;
 
 const rewardHeader = [
   { title: "No", prop: "no", sortable: false, filterable: false },
-  { title: "Type", prop: "coin_type", sortable: false, filterable: false },
-  { title: "Amount", prop: "coin_amount", sortable: false, filterable: false },
+  { title: "Type", prop: "coin_type", sortable: true, filterable: false },
+  { title: "Amount", prop: "coin_amount", sortable: true, filterable: false },
   { title: "Date/Time", prop: "datetime", sortable: true, filterable: true },
 ];
 const header = [
@@ -692,7 +692,8 @@ class UserProfile extends React.Component {
                             no: index + 1,
                             coin_type:
                               row.coin_type == "C" ? "Credit" : "Debit",
-                            coin_amount: Number(row.coin_amount).toFixed(2),
+                            // coin_amount: Number(row.coin_amount).toFixed(2),
+                            coin_amount:Math.round(row.coin_amount*100)/100,
                             datetime: moment
                               .tz(row.createdAt, "UTC")
                               .format("DD/MM/YYYY h:mm A"),

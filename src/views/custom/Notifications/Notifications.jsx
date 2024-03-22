@@ -160,8 +160,12 @@ class Notifications extends React.Component {
           // Handle successful response
 
           if (response.success) {
-            console.log(">>>>>", response.data)
-            this.setState({ notifications: response.data });
+            // console.log(">>>>>", response.data)
+            // this.setState({ notifications: response.data });
+            const activeNotifications = response.data.filter(
+              (item) => item.notification_active
+            );
+            this.setState({ notifications: activeNotifications });
           } else {
           }
         })
