@@ -14071,3 +14071,25 @@ margin-right: 200px;
 .transactionTable td:nth-child(8) {
   width: 200px !important;
 }
+
+.dt-disp .col-md-4.col-xs-12.text-right {
+  width: 0;
+}
+
+.dt-disp .col-md-4.col-xs-12 {
+  margin-right: 47px;
+}
+
+.form-inline {
+  margin: 0 59px;
+}
+
+@media (max-width: 990px) {
+  .dt-disp .col-md-4.col-xs-12 {
+    margin-right: 0;
+  }
+
+  .form-inline {
+    margin: 0 2px;
+  }
+}
