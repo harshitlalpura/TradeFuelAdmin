@@ -20,7 +20,7 @@ const header = [
     {title: 'Email', prop: 'user_email', sortable: true, filterable: true},
     {title: 'Phone', prop: 'user_phone', sortable: true, filterable: true},
     {title: 'Subscription', prop: 'user_subscription', sortable: true, filterable: true},
-    {title: 'Date/Time', prop: 'user_created_at', sortable: true, filterable: true},
+    {title: 'Date/Time', prop: 'user_created_at', sortable: false, filterable: true},
     {title: 'Block', prop: 'block', sortable: false, filterable: false},
     {title: 'View', prop: 'view', sortable: false, filterable: false},
     {title: 'Delete', prop: 'delete', sortable: false, filterable: false},

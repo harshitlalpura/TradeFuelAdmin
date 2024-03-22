@@ -250,8 +250,12 @@ class Feedbacks extends React.Component {
                               customersubscription:
                                 row.user && row.user.user_subscription,
                               feedback_star: <Star {...row} />,
-                              feedback_created_at: moment
-                                .tz(row.feedback_created_at)
+                              // feedback_created_at: moment
+                              //   .tz(row.feedback_created_at)
+                              //   .format("DD/MM/YYYY h:mm A"),
+                                
+                                feedback_created_at: moment
+                                .tz(row.feedback_created_at, userTimeZone)
                                 .format("DD/MM/YYYY h:mm A"),
                               feedback: (
                                 <Button

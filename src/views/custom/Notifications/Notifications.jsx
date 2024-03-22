@@ -160,6 +160,7 @@ class Notifications extends React.Component {
           // Handle successful response
 
           if (response.success) {
+            console.log(">>>>>", response.data)
             this.setState({ notifications: response.data });
           } else {
           }
