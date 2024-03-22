@@ -23,6 +23,7 @@ import * as Yup from "yup";
 import { makeProtectedRequest } from "../api";
 
 var IMGDIR = process.env.REACT_APP_IMGDIR;
+const userTimeZone = moment.tz.guess(); // Guess the user's timezone
 
 const rewardHeader = [
   { title: "No", prop: "no", sortable: false, filterable: false },
@@ -112,6 +113,7 @@ class UserProfile extends React.Component {
       coinValue: "",
       coninValueError: false,
       selectDropdownError: false,
+      totalCoinAmount: 0,
       // selectedOption: null,
       user: {
         user_name: "",
@@ -150,7 +152,7 @@ class UserProfile extends React.Component {
       this.setState({ user_id: user_id });
 
       this.fetchUser(user_id);
-      this.fetchAllCoin();
+      this.fetchAllCoin(user_id);
     }
   }
 
@@ -161,6 +163,7 @@ class UserProfile extends React.Component {
           // Handle successful response
 
           if (response.success) {
+            console.log(">>", response.data);
             this.setState({ user: response.data });
 
             this.fetchTransactions();
@@ -342,30 +345,56 @@ class UserProfile extends React.Component {
       // console.log("coin save", this.state.coinValue);
       // console.log("selectedOption", this.state.selectedOption.label);
       try {
-        makeProtectedRequest("/coinSave", "POST", {
-          user_id: this.state.user_id,
-          amount: Number(this.state.coinValue),
-          coin_type: this.state.selectedOption.value,
-        })
-          .then((response) => {
-            if (response.success) {
-              console.log(">>", response.data);
-              Swal.fire({
-                text: "Coin Add Successfully.",
-                icon: "Success",
-              });
-              this.setState({ coinValue: "" });
-              this.setState({ selectedOption: null });
-              this.fetchAllCoin();
-              this.coinToggle();
-            } else {
-              console.log("else part");
-            }
-          })
-          .catch((error) => {
-            // Handle error
-            console.error(error);
+        console.log(">>", Number(this.state.coinValue));
+        console.log(">>", this.state.totalCoinAmount);
+        console.log(">>", this.state.selectedOption.value);
+
+        if (
+          this.state.selectedOption.value == "B" &&
+          Number(this.state.coinValue > this.state.totalCoinAmount)
+        ) {
+          Swal.fire({
+            text: "You can not be debit reward more then Balance.",
+            icon: "Success",
           });
+        } else {
+          // var data =
+          //   this.state.selectedOption.value === "C"
+          //     ? this.state.totalCoinAmount + Number(this.state.coinValue)
+          //     : this.state.totalCoinAmount - Number(this.state.coinValue);
+          // console.log(">>", data);
+
+          var data;
+          if (this.state.selectedOption.value === "C") {
+            data = this.state.totalCoinAmount + Number(this.state.coinValue);
+          } else {
+            data = this.state.totalCoinAmount - Number(this.state.coinValue);
+          }
+          if (data) {
+            console.log("data", data)
+          
+                  // console.log(">>", response.data);
+
+                  makeProtectedRequest("/coinSave", "POST", {
+                    user_id: this.state.user_id,
+                    amount: Number(this.state.coinValue),
+                    coin_type: this.state.selectedOption.value,
+                  }).then((response) => {
+                    console.log("success", response.data);
+                    Swal.fire({
+                      text: "Coin Add Successfully.",
+                      icon: "Success",
+                    });
+                    this.setState({ coinValue: "" });
+                    this.setState({ selectedOption: null });
+                    this.setState({totalCoinAmount:0})
+                    this.fetchAllCoin(this.state.user_id);
+                    this.coinToggle();
+                    this.fetchUser(this.state.user_id);
+                  });
+                   
+          }
+        }
       } catch (error) {
         this.setState({ message: "Error" });
       }
@@ -378,13 +407,22 @@ class UserProfile extends React.Component {
   };
 
   // get all coin
-  fetchAllCoin = () => {
+  fetchAllCoin = (user_id) => {
     try {
-      makeProtectedRequest("/fetchAllCoin", "GET", {})
+      makeProtectedRequest("/fetchCoinById", "POST", {
+       user_id:user_id
+      })
         .then((response) => {
           if (response.success) {
-            console.log(">>", response.data);
+            // console.log(">>", response.data);
             this.setState({ rewardHistory: response.data });
+            let totalCoinAmount = 0;
+            this.state.rewardHistory.filter((item) => {
+              this.setState({
+                totalCoinAmount: (totalCoinAmount += item.coin_amount),
+              });
+              console.log(">>", this.state.totalCoinAmount);
+            });
           } else {
             console.log("else part");
           }
@@ -507,7 +545,7 @@ class UserProfile extends React.Component {
                             onClick={() => this.coinToggle()}
                           >
                             <i className="fa fa-plus"></i> &nbsp;{" "}
-                            <span>Coin</span>
+                            <span>Reward</span>
                           </button>
                           <div className="clearfix"></div>
                           <p className="uprofile-title">
@@ -530,6 +568,12 @@ class UserProfile extends React.Component {
                             <span>
                               <i className="i-wallet"></i>{" "}
                               {Number(user.user_balance).toFixed(2)} INR
+                            </span>
+                          </p>
+                          <p>
+                            <span>
+                              <i class="fa fa-viacoin" aria-hidden="true"></i>{" "}
+                              {Number(user.user_coin).toFixed(2)} Reward
                             </span>
                           </p>
                         </div>
@@ -644,13 +688,14 @@ class UserProfile extends React.Component {
                               row.transactionType == "B" ? "Buy" : "Sell",
                             txn_volume: row.quantity,
                             // txn_amount: Number(row.amount).toFixed(2),
-                            txn_amount: Math.round(row.amount*100)/100,
+                            txn_amount: Math.round(row.amount * 100) / 100,
                             txn_script:
                               row.stockSymbol && row.stockSymbol.split(".")[0],
                             // total: (
                             //   Number(row.quantity) * Number(row.amount)
                             // ).toFixed(2),
-                            total: Math.round((row.quantity * row.amount) * 100) / 100,
+                            total:
+                              Math.round(row.quantity * row.amount * 100) / 100,
 
                             txn_datetime: moment
                               .tz(row.createdAt, "UTC")
@@ -693,9 +738,10 @@ class UserProfile extends React.Component {
                             coin_type:
                               row.coin_type == "C" ? "Credit" : "Debit",
                             // coin_amount: Number(row.coin_amount).toFixed(2),
-                            coin_amount:Math.round(row.coin_amount*100)/100,
+                            coin_amount:
+                              Math.round(row.coin_amount * 100) / 100,
                             datetime: moment
-                              .tz(row.createdAt, "UTC")
+                              .tz(row.coin_created_at, userTimeZone)
                               .format("DD/MM/YYYY h:mm A"),
                             // view: <ViewButton {...row} />,
                           }))
@@ -749,7 +795,7 @@ class UserProfile extends React.Component {
           toggle={this.coinToggle}
           className={this.props.className}
         >
-          <ModalHeader toggle={this.coinToggle}>Coin</ModalHeader>
+          <ModalHeader toggle={this.coinToggle}>Reward</ModalHeader>
           <ModalBody>
             <Input
               type="text"

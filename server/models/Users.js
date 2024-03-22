@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema({
     user_phone: {type: String, default: ""},
     user_subscription: {type: String, default: ""},
     user_balance: {type: Number, default: 50000},
+    user_coin: {type: Number, default: 0},
     user_notification_token: [{type: String}],
     user_created_at: {type: Date, default: moment.tz('UTC').toDate()},
     user_block: {type: Boolean, default: false},

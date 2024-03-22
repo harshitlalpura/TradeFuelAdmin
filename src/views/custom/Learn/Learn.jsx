@@ -140,7 +140,7 @@ class Learn extends React.Component {
                               learn_no: index + 1,
                               learn_category: row.learn_category.learn_cat_name,
                               learn_created_at: moment
-                                .tz(row.learn_created_at, userTimeZone)
+                                .tz(row.learn_created_at).tz(userTimeZone)
                                 .format("DD/MM/YYYY h:mm A"),
 
                               view: (

@@ -161,11 +161,11 @@ class Notifications extends React.Component {
 
           if (response.success) {
             // console.log(">>>>>", response.data)
-            // this.setState({ notifications: response.data });
-            const activeNotifications = response.data.filter(
-              (item) => item.notification_active
-            );
-            this.setState({ notifications: activeNotifications });
+            this.setState({ notifications: response.data });
+            // const activeNotifications = response.data.filter(
+            //   (item) => item.notification_active
+            // );
+            // this.setState({ notifications: activeNotifications });
           } else {
           }
         })
@@ -396,7 +396,7 @@ class Notifications extends React.Component {
                                 : "No",
                               // notification_datetime: row.notification_datetime ? moment.tz(row.notification_datetime, userTimeZone).format("DD/MM/YYYY h:mm A") : moment.tz(row.notification_created_at, userTimeZone).format("DD/MM/YYYY h:mm A"),
                               notification_datetime: moment
-                                .tz(row.notification_datetime, userTimeZone)
+                                .tz(row.notification_datetime, 'UTC')
                                 .format("DD/MM/YYYY h:mm A"),
 
                               view: (

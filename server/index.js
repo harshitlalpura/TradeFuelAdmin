@@ -154,7 +154,7 @@ app.use('/fetchWorldIndices', cacheMiddleware);
 
 app.post('/coinSave', coin.coinSave)
 app.get('/fetchAllCoin', coin.getAllCoins)
-app.get('/fetchCoinById',  coin.getCoinById)
+app.post('/fetchCoinById',  coin.getCoinById)
 app.get('/subscription', user.fetchAllSubscriber)
 app.post('/fetchLeaderboardByEarnings', user.fetchLeaderboardByEarnings);
 app.post('/fetchLeaderboardByVolume', user.fetchLeaderboardByVolume);
@@ -539,6 +539,7 @@ app.post('/saveLearn', (req, res) => {
 app.post('/saveSettings', authenticate, settings.saveSettings);
 app.post('/updateSettings', authenticate, settings.updateSettings);
 app.post('/saveBalance', user.saveBalance);
+
 app.post('/saveNotificationGroup', authenticate, notificationGroups.saveNotificationGroup);
 app.post('/updateNotificationGroup', authenticate, notificationGroups.updateNotificationGroup);
 app.get('/fetchAllNotificationGroups', notificationGroups.fetchAllNotificationGroups);

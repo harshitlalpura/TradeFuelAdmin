@@ -144,7 +144,7 @@ class Feedbacks extends React.Component {
         return true; // No filtering if start or end date is not provided
       }
 
-      const feedbackDate = moment.tz(row.createdAt, "UTC");
+      const feedbackDate = moment.tz(row.feedback_created_at,userTimeZone);
       const startOfDay = moment(startDate).startOf("day");
       const endOfDay = moment(endDate).endOf("day");
 

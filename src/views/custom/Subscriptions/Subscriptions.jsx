@@ -412,13 +412,13 @@ class Subscriptions extends React.Component {
             weeklyLabels.push(formattedDate);
             
             const count = this.state.subscriptions.filter((user) => {
-                if(user.user_subscription !== ""){
-                const userDate = moment(user.user_created_at);
+                // if(user.user_subscription !== ""){
+                const userDate = moment(user.planPurchasedAt);
                 // return userDate.isSame(currentDate, 'day');
  
                 //  console.log(userDate.format("DD-MM-YYYY")+" "+currentDate.format("DD-MM-YYYY"));
                  return (userDate.format("DD-MM-YYYY")==currentDate.format("DD-MM-YYYY"));
-             }
+            //  }
             }).length;
 
             weeklyCounts.push(count);
@@ -426,16 +426,7 @@ class Subscriptions extends React.Component {
             currentDate = currentDate.clone().add(1, 'day');
         }
 
-        // subscription
-        // makeProtectedRequest('/subscription', 'GET', {})
-        // .then((response) => {
-        //     // Handle successful response
-            
-
-        //     if (response.success) {
-        //         console.log(">>", response)
-        //     }})
-
+       
         return {
             labels: weeklyLabels,
             datasets: [
@@ -471,11 +462,11 @@ class Subscriptions extends React.Component {
             monthlyLabels.push(formattedDate);
 
             const count = this.state.subscriptions.filter((user) => {
-               if(user.user_subscription !== ""){
-                const userDate = moment(user.user_created_at);
+            //    if(user.user_subscription !== ""){
+                const userDate = moment(user.planPurchasedAt);
 
                 return (userDate.format("MM")==currentDate.format("MM"));
-               }
+            //    }
 
             }).length;
 
@@ -514,13 +505,43 @@ class Subscriptions extends React.Component {
     fetchUsers = () => {
         try {
 
-            makeProtectedRequest('/fetchUsers', 'GET', {})
-                .then((response) => {
-                    // Handle successful response
+            // makeProtectedRequest('/fetchUsers', 'GET', {})
+            //     .then((response) => {
+            //         // Handle successful response
                     
 
-                    if (response.success) {
-                        console.log(">>", response.data)
+            //         if (response.success) {
+            //             console.log(">>", response.data)
+            //             this.setState({subscriptions: response.data});
+            //             const weeklyData = this.generateWeeklySubscriptionChartData();
+            //             this.setState({weeklySubscriptionData: weeklyData});
+
+
+            //             const monthlyData = this.generateMonthlySubSciberChartData();
+            //             this.setState({monthlySubscriptionData: monthlyData});
+
+            //             console.log("weeklyData", weeklyData);
+            //             console.log("monthlyData", monthlyData);
+
+
+            //         } else {
+
+            //         }
+
+            //     })
+            //     .catch((error) => {
+            //         // Handle error
+            //         console.error(error);
+            //     });
+//  subscription
+        makeProtectedRequest('/subscription', 'GET', {})
+        .then((response) => {
+            // Handle successful response
+            console.log(">>", response.data)
+
+            if (response.success) {
+                // console.log(">>", response)
+                                        console.log(">>", response.data)
                         this.setState({subscriptions: response.data});
                         const weeklyData = this.generateWeeklySubscriptionChartData();
                         this.setState({weeklySubscriptionData: weeklyData});
@@ -531,17 +552,7 @@ class Subscriptions extends React.Component {
 
                         console.log("weeklyData", weeklyData);
                         console.log("monthlyData", monthlyData);
-
-
-                    } else {
-
-                    }
-
-                })
-                .catch((error) => {
-                    // Handle error
-                    console.error(error);
-                });
+            }})
 
 
         } catch (error) {
