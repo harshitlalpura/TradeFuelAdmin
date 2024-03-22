@@ -1,31 +1,26 @@
 import React from "react";
 import {
-  Row,
-  Col,
   Badge,
-  FormGroup,
-  Label,
-  Input,
-  Modal,
-  ModalHeader,
-  ModalBody,
+  Col,
   Dropdown,
-  DropdownToggle,
-  DropdownMenu,
   DropdownItem,
-  FormFeedback,
+  DropdownMenu,
+  DropdownToggle,
+  FormGroup,
+  Input,
+  Label,
+  Modal,
+  ModalBody,
+  ModalHeader,
+  Row,
 } from "reactstrap";
 
-import { Button } from "components";
-import plans from "../Transactions/transaction.js";
-import Datatable from "react-bs-datatable";
 import moment from "moment/moment";
+import Datatable from "react-bs-datatable";
 import { Link } from "react-router-dom";
-import { makeProtectedRequest } from "../api";
-import { convertFromRaw, EditorState } from "draft-js";
 import Swal from "sweetalert2";
-import { Form, Formik } from "formik";
 import * as Yup from "yup";
+import { makeProtectedRequest } from "../api";
 
 var IMGDIR = process.env.REACT_APP_IMGDIR;
 
@@ -251,7 +246,6 @@ class UserProfile extends React.Component {
     this.setState({ modal: !this.state.modal });
   }
 
-  
   // open add coin model
   coinToggle() {
     this.setState({ coinModel: !this.state.coinModel });
@@ -662,7 +656,7 @@ class UserProfile extends React.Component {
                           }))
                         }
                         keyName="userTable"
-                        tableClass="striped table-hover table-responsive"
+                        tableClass="striped userProfileTable table-hover table-responsive"
                         rowsPerPage={20}
                         rowsPerPageOption={[5, 10, 15, 20]}
                         initialSort={{ prop: "planno", isAscending: true }}
@@ -686,37 +680,35 @@ class UserProfile extends React.Component {
                       <div className="clearfix"></div>
                     </div>
                     <div className="col-lg-12 dt-disp">
-                     
-                          <Datatable
-                            tableHeader={rewardHeader}
-                            tableBody={
-                              rewardHistory &&
-                              rewardHistory.length > 0 &&
-                              rewardHistory.map((row, index) => ({
-                                no: index + 1,
-                                coin_type:
-                                  row.coin_type == "C" ? "Credit" : "Debit",
-                                coin_amount: Number(row.coin_amount).toFixed(2),
-                                datetime: moment
-                                  .tz(row.createdAt, "UTC")
-                                  .format("DD/MM/YYYY h:mm A"),
-                                // view: <ViewButton {...row} />,
-                              }))
-                            }
-                            keyName="coinTable"
-                            tableClass="striped table-hover table-responsive"
-                            rowsPerPage={20}
-                            rowsPerPageOption={[5, 10, 15, 20]}
-                            initialSort={{ prop: "planno", isAscending: true }}
-                            onSort={onSortFunction}
-                            labels={customLabels}
-                            table-props={{
-                              search: false,
-                            }}
-                          />
-                        </div>
-                      </div>
-                   
+                      <Datatable
+                        tableHeader={rewardHeader}
+                        tableBody={
+                          rewardHistory &&
+                          rewardHistory.length > 0 &&
+                          rewardHistory.map((row, index) => ({
+                            no: index + 1,
+                            coin_type:
+                              row.coin_type == "C" ? "Credit" : "Debit",
+                            coin_amount: Number(row.coin_amount).toFixed(2),
+                            datetime: moment
+                              .tz(row.createdAt, "UTC")
+                              .format("DD/MM/YYYY h:mm A"),
+                            // view: <ViewButton {...row} />,
+                          }))
+                        }
+                        keyName="coinTable"
+                        tableClass="striped rewardsHistoryTable table-hover table-responsive"
+                        rowsPerPage={20}
+                        rowsPerPageOption={[5, 10, 15, 20]}
+                        initialSort={{ prop: "planno", isAscending: true }}
+                        onSort={onSortFunction}
+                        labels={customLabels}
+                        table-props={{
+                          search: false,
+                        }}
+                      />
+                    </div>
+                  </div>
                 </section>
               </div>
             </Col>
@@ -857,8 +849,8 @@ class UserProfile extends React.Component {
                     {errors.coin_value && touched.coin_value ? (
                       <FormFeedback>{errors.coin_value}</FormFeedback>
                     ) : null}
-                   
-                
+
+
                     <Dropdown
                       isOpen={this.state.coinDropdown}
                       toggle={this.toggleDropdown}

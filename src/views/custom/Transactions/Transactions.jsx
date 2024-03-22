@@ -2,10 +2,8 @@ import moment from "moment"; // Example for onSort prop
 import React from "react"; // Import React
 //import { render } from 'react-dom'; // Import render method
 import Datatable from "react-bs-datatable"; // Import this package
-import { Row, Col, Label, Input, FormGroup, Badge } from "reactstrap";
+import { Badge, Col, FormGroup, Input, Label, Row } from "reactstrap";
 
-import plans from "./transaction.js";
-import { Button } from "../../../components";
 import { Link } from "react-router-dom";
 import { makeProtectedRequest } from "../api.js";
 
@@ -165,7 +163,6 @@ class Transactions extends React.Component {
   handleStartDateChange = (e) => {
     this.setState({ startDate: e.target.value });
     this.setState({ endDate: "" });
-
   };
 
   handleEndDateChange = (e) => {
@@ -173,19 +170,19 @@ class Transactions extends React.Component {
   };
 
   render() {
-    const { transactions, users,   startDate, endDate, } = this.state;
+    const { transactions, users, startDate, endDate } = this.state;
     const filteredTransactions = transactions.filter((row) => {
-        if (!startDate || !endDate) {
-          return true; // No filtering if start or end date is not provided
-        }
-  
-        const transactionDate = moment.tz(row.createdAt, "UTC");
-        const startOfDay = moment(startDate).startOf("day");
-        const endOfDay = moment(endDate).endOf("day");
-  
-        return transactionDate.isBetween(startOfDay, endOfDay, null, "[]");
-      });
-  
+      if (!startDate || !endDate) {
+        return true; // No filtering if start or end date is not provided
+      }
+
+      const transactionDate = moment.tz(row.createdAt, "UTC");
+      const startOfDay = moment(startDate).startOf("day");
+      const endOfDay = moment(endDate).endOf("day");
+
+      return transactionDate.isBetween(startOfDay, endOfDay, null, "[]");
+    });
+
     return (
       <div>
         <div className="content">
@@ -280,16 +277,16 @@ class Transactions extends React.Component {
                                 placeholder=""
                               /> */}
                               <div className="d-flex align-items-center">
-                              <Input
-                                type="date"
-                                name="date"
-                                id="exampleDate"
-                                placeholder=""
-                                min={startDate}
-                                value={this.state.endDate}
-                                onChange={this.handleEndDateChange}
-                              />
-                              {/* {this.state.endDate && (
+                                <Input
+                                  type="date"
+                                  name="date"
+                                  id="exampleDate"
+                                  placeholder=""
+                                  min={startDate}
+                                  value={this.state.endDate}
+                                  onChange={this.handleEndDateChange}
+                                />
+                                {/* {this.state.endDate && (
                                 <span
                                   style={{ cursor: "pointer", color: "red" }}
                                   class="input-group-btn"
@@ -301,35 +298,40 @@ class Transactions extends React.Component {
                                   ></i>
                                 </span>
                               )} */}
-                            </div>
+                              </div>
                             </FormGroup>
                           </div>
                         </div>
 
                         <Datatable
                           tableHeader={header}
-                          tableBody={filteredTransactions&&filteredTransactions.map((row, index) => {
-                            const user = users.find(
-                              (user) => user._id === row.userId
-                            );
-                            const userName = user ? user.user_name : "Unknown";
+                          tableBody={
+                            filteredTransactions &&
+                            filteredTransactions.map((row, index) => {
+                              const user = users.find(
+                                (user) => user._id === row.userId
+                              );
+                              const userName = user
+                                ? user.user_name
+                                : "Unknown";
 
-                            return {
-                              ...row,
-                              no: index + 1,
-                              user_name: userName,
-                              transactionType:
-                                row.transactionType == "B" ? "Buy" : "Sell",
-                              stockSymbol: row.stockSymbol.split(".")[0],
-                              createdAt: moment
-                                .tz(row.createdAt, userTimeZone)
-                                .format("DD/MM/YYYY h:mm A"),
-                              txn_type: <TxnType {...row} />,
-                              view: <ViewButton {...row} />,
-                            };
-                          })}
+                              return {
+                                ...row,
+                                no: index + 1,
+                                user_name: userName,
+                                transactionType:
+                                  row.transactionType == "B" ? "Buy" : "Sell",
+                                stockSymbol: row.stockSymbol.split(".")[0],
+                                createdAt: moment
+                                  .tz(row.createdAt, userTimeZone)
+                                  .format("DD/MM/YYYY h:mm A"),
+                                txn_type: <TxnType {...row} />,
+                                view: <ViewButton {...row} />,
+                              };
+                            })
+                          }
                           keyName="userTable"
-                          tableClass="striped table-hover table-responsive"
+                          tableClass="striped transactionTable table-hover table-responsive"
                           rowsPerPage={20}
                           rowsPerPageOption={[5, 10, 15, 20]}
                           initialSort={{ prop: "planno", isAscending: true }}
