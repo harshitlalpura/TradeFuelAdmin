@@ -19,6 +19,7 @@ import { Link } from "react-router-dom";
 //import feed from "./feed";
 import StarRatings from "react-star-ratings/build/star-ratings";
 import { makeProtectedRequest } from "../api";
+const userTimeZone = moment.tz.guess(); // Guess the user's timezone
 
 const header = [
   { title: "No", prop: "feedback_no", sortable: false, filterable: false },
@@ -246,9 +247,11 @@ class Feedbacks extends React.Component {
                             user_name: row.user&&row.user.user_name,
                             customersubscription: row.user&& row.user.user_subscription,
                             feedback_star: <Star {...row} />,
-                            feedback_created_at: moment
-                              .tz(row.feedback_created_at)
-                              .format("DD/MM/YYYY h:mm A"),
+                            // feedback_created_at: moment
+                            //   .tz(row.feedback_created_at)
+                            //   .format("DD/MM/YYYY h:mm A"),
+                              feedback_created_at: moment.tz(row.feedback_created_at, userTimeZone).format("DD/MM/YYYY h:mm A"),
+
                             feedback: (
                               <Button
                                 className="btn btn-primary btn-sm"

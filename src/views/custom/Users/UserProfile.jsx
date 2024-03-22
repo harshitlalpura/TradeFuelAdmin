@@ -649,12 +649,15 @@ class UserProfile extends React.Component {
                             txn_direction:
                               row.transactionType == "B" ? "Buy" : "Sell",
                             txn_volume: row.quantity,
-                            txn_amount: Number(row.amount).toFixed(2),
+                            // txn_amount: Number(row.amount).toFixed(2),
+                            txn_amount: Math.round(row.amount*100)/100,
                             txn_script:
                               row.stockSymbol && row.stockSymbol.split(".")[0],
-                            total: (
-                              Number(row.quantity) * Number(row.amount)
-                            ).toFixed(2),
+                            // total: (
+                            //   Number(row.quantity) * Number(row.amount)
+                            // ).toFixed(2),
+                            total: Math.round((row.quantity * row.amount) * 100) / 100,
+
                             txn_datetime: moment
                               .tz(row.createdAt, "UTC")
                               .format("DD/MM/YYYY h:mm A"),

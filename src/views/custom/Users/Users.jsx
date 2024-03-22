@@ -313,14 +313,14 @@ class Users extends React.Component {
 
                                                     tableBody={users.map((row, index) => ({
                                                         ...row,
-                                                        checkbox: (
-                                                            <Checkbox
-                                                                inputProps={{
-                                                                    checked: this.state.selectedUsers.includes(row._id),
-                                                                    onChange: () => this.toggleUserSelection(row._id),
-                                                                }}
-                                                            />
-                                                        ),
+                                                        // checkbox: (
+                                                        //     <Checkbox
+                                                        //         inputProps={{
+                                                        //             checked: this.state.selectedUsers.includes(row._id),
+                                                        //             onChange: () => this.toggleUserSelection(row._id),
+                                                        //         }}
+                                                        //     />
+                                                        // ),
                                                         user_no: (index + 1),
                                                         user_created_at: moment.tz(row.user_created_at, userTimeZone).format("DD/MM/YYYY h:mm A"),
 
