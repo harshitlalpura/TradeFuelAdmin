@@ -3,19 +3,18 @@ import React from "react"; // Import React
 //import { render } from 'react-dom'; // Import render method
 import Datatable from "react-bs-datatable"; // Import this package
 import {
-  Row,
   Col,
   FormGroup,
-  Label,
   Input,
-  ModalHeader,
+  Label,
+  Modal,
   ModalBody,
   ModalFooter,
-  Modal,
+  ModalHeader,
+  Row,
 } from "reactstrap";
 
 import { Button } from "../../../components";
-import { Link } from "react-router-dom";
 //import feed from "./feed";
 import StarRatings from "react-star-ratings/build/star-ratings";
 import { makeProtectedRequest } from "../api";
@@ -127,31 +126,31 @@ class Feedbacks extends React.Component {
     });
   };
 
-    // date wise filter
-    handleStartDateChange = (e) => {
-        this.setState({ startDate: e.target.value });
-        this.setState({ endDate: "" });
-      };
-    
-      handleEndDateChange = (e) => {
-        this.setState({ endDate: e.target.value });
-      };
+  // date wise filter
+  handleStartDateChange = (e) => {
+    this.setState({ startDate: e.target.value });
+    this.setState({ endDate: "" });
+  };
+
+  handleEndDateChange = (e) => {
+    this.setState({ endDate: e.target.value });
+  };
 
   render() {
-    const { feedbacks, startDate, endDate, } = this.state;
-   
-      const filteredFeedback = feedbacks.filter((row) => {
-        if (!startDate || !endDate) {
-          return true; // No filtering if start or end date is not provided
-        }
-  
-        const feedbackDate = moment.tz(row.createdAt, "UTC");
-        const startOfDay = moment(startDate).startOf("day");
-        const endOfDay = moment(endDate).endOf("day");
-  
-        return feedbackDate.isBetween(startOfDay, endOfDay, null, "[]");
-      });
-  
+    const { feedbacks, startDate, endDate } = this.state;
+
+    const filteredFeedback = feedbacks.filter((row) => {
+      if (!startDate || !endDate) {
+        return true; // No filtering if start or end date is not provided
+      }
+
+      const feedbackDate = moment.tz(row.createdAt, "UTC");
+      const startOfDay = moment(startDate).startOf("day");
+      const endOfDay = moment(endDate).endOf("day");
+
+      return feedbackDate.isBetween(startOfDay, endOfDay, null, "[]");
+    });
+
     return (
       <div>
         <div className="content">
@@ -212,17 +211,17 @@ class Feedbacks extends React.Component {
                                 id="exampleDate"
                                 placeholder=""
                               /> */}
-                               <div className="d-flex align-items-center">
-                              <Input
-                                type="date"
-                                name="date"
-                                id="exampleDate"
-                                placeholder=""
-                                min={startDate}
-                                value={this.state.endDate}
-                                onChange={this.handleEndDateChange}
-                              />
-                              {/* {this.state.endDate && (
+                              <div className="d-flex align-items-center">
+                                <Input
+                                  type="date"
+                                  name="date"
+                                  id="exampleDate"
+                                  placeholder=""
+                                  min={startDate}
+                                  value={this.state.endDate}
+                                  onChange={this.handleEndDateChange}
+                                />
+                                {/* {this.state.endDate && (
                                 <span
                                   style={{ cursor: "pointer", color: "red" }}
                                   class="input-group-btn"
@@ -234,37 +233,40 @@ class Feedbacks extends React.Component {
                                   ></i>
                                 </span>
                               )} */}
-                            </div>
+                              </div>
                             </FormGroup>
                           </div>
                         </div>
 
                         <Datatable
                           tableHeader={header}
-                          tableBody={filteredFeedback&&filteredFeedback.length > 0&&filteredFeedback.map((row, index) => ({
-                            ...row,
-                            feedback_no: index + 1,
-                            user_name: row.user&&row.user.user_name,
-                            customersubscription: row.user&& row.user.user_subscription,
-                            feedback_star: <Star {...row} />,
-                            // feedback_created_at: moment
-                            //   .tz(row.feedback_created_at)
-                            //   .format("DD/MM/YYYY h:mm A"),
-                              feedback_created_at: moment.tz(row.feedback_created_at, userTimeZone).format("DD/MM/YYYY h:mm A"),
-
-                            feedback: (
-                              <Button
-                                className="btn btn-primary btn-sm"
-                                onClick={() =>
-                                  this.toggle(row.feedback_comments)
-                                }
-                              >
-                                <i className="fa fa-eye"></i>{" "}
-                              </Button>
-                            ),
-                          }))}
+                          tableBody={
+                            filteredFeedback &&
+                            filteredFeedback.length > 0 &&
+                            filteredFeedback.map((row, index) => ({
+                              ...row,
+                              feedback_no: index + 1,
+                              user_name: row.user && row.user.user_name,
+                              customersubscription:
+                                row.user && row.user.user_subscription,
+                              feedback_star: <Star {...row} />,
+                              feedback_created_at: moment
+                                .tz(row.feedback_created_at)
+                                .format("DD/MM/YYYY h:mm A"),
+                              feedback: (
+                                <Button
+                                  className="btn btn-primary btn-sm"
+                                  onClick={() =>
+                                    this.toggle(row.feedback_comments)
+                                  }
+                                >
+                                  <i className="fa fa-eye"></i>{" "}
+                                </Button>
+                              ),
+                            }))
+                          }
                           keyName="userTable"
-                          tableClass="striped table-hover table-responsive"
+                          tableClass="striped feedBackTable table-hover table-responsive"
                           rowsPerPage={20}
                           rowsPerPageOption={[5, 10, 15, 20]}
                           initialSort={{

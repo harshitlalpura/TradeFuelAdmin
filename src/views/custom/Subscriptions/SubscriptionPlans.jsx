@@ -4,11 +4,10 @@ import "moment-timezone";
 import React from "react"; // Import React
 //import { render } from 'react-dom'; // Import render method
 import Datatable from "react-bs-datatable"; // Import this package
-import { Row, Col } from "reactstrap";
+import { Col, Row } from "reactstrap";
 
-import plans from "./plans.js";
-import { Button } from "../../../components";
 import { Link } from "react-router-dom";
+import { Button } from "../../../components";
 import { makeProtectedRequest } from "../api";
 
 const userTimeZone = moment.tz.guess(); // Guess the user's timezone
@@ -123,11 +122,11 @@ class SubscriptionPlans extends React.Component {
             this.setState({ users: response.data });
 
             const subscriberCountByPlan = {};
-            response.data.forEach(user => {
-              subscriberCountByPlan[user.user_subscription] = (subscriberCountByPlan[user.user_subscription] || 0) + 1;
+            response.data.forEach((user) => {
+              subscriberCountByPlan[user.user_subscription] =
+                (subscriberCountByPlan[user.user_subscription] || 0) + 1;
             });
             this.setState({ subscriberCountByPlan });
-
           } else {
             console.log("else");
           }
@@ -142,7 +141,6 @@ class SubscriptionPlans extends React.Component {
     }
   };
 
-  
   render() {
     const { plans, users, subscriberCountByPlan } = this.state;
 
@@ -179,7 +177,8 @@ class SubscriptionPlans extends React.Component {
                           tableBody={plans.map((row, index) => ({
                             ...row,
                             plan_no: index + 1,
-                            plan_subscribers: subscriberCountByPlan[row.plan_name] || 0,
+                            plan_subscribers:
+                              subscriberCountByPlan[row.plan_name] || 0,
                             plan_created_at: moment
                               .tz(row.plan_created_at, userTimeZone)
                               .format("DD/MM/YYYY h:mm A"),
@@ -202,7 +201,7 @@ class SubscriptionPlans extends React.Component {
                             ),
                           }))}
                           keyName="userTable"
-                          tableClass="striped table-hover table-responsive"
+                          tableClass="striped subscriptionPlan-tabel table-hover table-responsive"
                           rowsPerPage={20}
                           rowsPerPageOption={[5, 10, 15, 20]}
                           initialSort={{
