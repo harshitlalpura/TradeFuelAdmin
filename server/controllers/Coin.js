@@ -33,7 +33,7 @@ exports.coinSave = async (req, res) => {
         coin_amount: amount,
     });
     await saveCoin.save();
-    res.status(200).json({success:true,message: 'Subscription Plan Purchased Successfully.'});
+    res.status(200).json({success:true,message: 'User updated successfully.'});
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

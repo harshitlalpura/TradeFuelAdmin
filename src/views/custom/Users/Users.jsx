@@ -322,8 +322,13 @@ class Users extends React.Component {
                                                         //     />
                                                         // ),
                                                         user_no: (index + 1),
-                                                        user_created_at: moment.tz(row.user_created_at, userTimeZone).format("DD/MM/YYYY h:mm A"),
-
+                                                        // user_created_at: moment.tz(row.user_created_at, userTimeZone).format("DD/MM/YYYY h:mm A"),
+                                                        user_created_at: (
+                                                            <div>
+                                                                <div>{moment.tz(row.user_created_at, userTimeZone).format("DD/MM/YYYY")}</div>
+                                                                <div>{moment.tz(row.user_created_at, userTimeZone).format("h:mm A")}</div>
+                                                            </div>
+                                                        ),
                                                         block: row.user_block ?
                                                             <Button className="btn btn-primary btn-sm"
                                                                     onClick={() => this.changeStatus(row)}><i

@@ -171,7 +171,7 @@ class News extends React.Component {
                                                             className="fa fa-trash"></i></Button>
                                                     }))}
                                                     keyName="userTable"
-                                                    tableClass="striped table-hover table-responsive"
+                                                    tableClass="striped news-table table-hover table-responsive"
                                                     rowsPerPage={20}
                                                     rowsPerPageOption={[5, 10, 15, 20]}
                                                     initialSort={{prop: "news_no", isAscending: true}}

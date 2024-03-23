@@ -171,6 +171,16 @@ class Transactions extends React.Component {
 
   render() {
     const { transactions, users, startDate, endDate } = this.state;
+
+    transactions.sort((a, b) => {
+        // Convert 'user_created_at' strings to Date objects
+        const dateA = new Date(a.createdAt);
+        const dateB = new Date(b.createdAt);
+        
+        // Compare the dates
+        return dateB - dateA; // For descending order, use dateB - dateA
+    });
+
     const filteredTransactions = transactions.filter((row) => {
       if (!startDate || !endDate) {
         return true; // No filtering if start or end date is not provided

@@ -139,6 +139,15 @@ class Feedbacks extends React.Component {
   render() {
     const { feedbacks, startDate, endDate } = this.state;
 
+    feedbacks.sort((a, b) => {
+      // Convert 'user_created_at' strings to Date objects
+      const dateA = new Date(a.feedback_created_at);
+      const dateB = new Date(b.feedback_created_at);
+      
+      // Compare the dates
+      return dateB - dateA; // For descending order, use dateB - dateA
+  });
+
     const filteredFeedback = feedbacks.filter((row) => {
       if (!startDate || !endDate) {
         return true; // No filtering if start or end date is not provided

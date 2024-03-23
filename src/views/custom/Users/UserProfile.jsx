@@ -113,7 +113,6 @@ class UserProfile extends React.Component {
       coinValue: "",
       coninValueError: false,
       selectDropdownError: false,
-      totalCoinAmount: 0,
       // selectedOption: null,
       user: {
         user_name: "",
@@ -342,58 +341,32 @@ class UserProfile extends React.Component {
       this.state.selectedOption !== null &&
       this.state.selectedOption !== ""
     ) {
-      // console.log("coin save", this.state.coinValue);
-      // console.log("selectedOption", this.state.selectedOption.label);
       try {
-        console.log(">>", Number(this.state.coinValue));
-        console.log(">>", this.state.totalCoinAmount);
-        console.log(">>", this.state.selectedOption.value);
-
         if (
-          this.state.selectedOption.value == "B" &&
-          Number(this.state.coinValue > this.state.totalCoinAmount)
+          this.state.selectedOption.value === "B" &&
+          Number(this.state.coinValue > this.state.user.user_coin)
         ) {
           Swal.fire({
             text: "You can not be debit reward more then Balance.",
             icon: "Success",
           });
         } else {
-          // var data =
-          //   this.state.selectedOption.value === "C"
-          //     ? this.state.totalCoinAmount + Number(this.state.coinValue)
-          //     : this.state.totalCoinAmount - Number(this.state.coinValue);
-          // console.log(">>", data);
-
-          var data;
-          if (this.state.selectedOption.value === "C") {
-            data = this.state.totalCoinAmount + Number(this.state.coinValue);
-          } else {
-            data = this.state.totalCoinAmount - Number(this.state.coinValue);
-          }
-          if (data) {
-            console.log("data", data)
-          
-                  // console.log(">>", response.data);
-
-                  makeProtectedRequest("/coinSave", "POST", {
-                    user_id: this.state.user_id,
-                    amount: Number(this.state.coinValue),
-                    coin_type: this.state.selectedOption.value,
-                  }).then((response) => {
-                    console.log("success", response.data);
-                    Swal.fire({
-                      text: "Coin Add Successfully.",
-                      icon: "Success",
-                    });
-                    this.setState({ coinValue: "" });
-                    this.setState({ selectedOption: null });
-                    this.setState({totalCoinAmount:0})
-                    this.fetchAllCoin(this.state.user_id);
-                    this.coinToggle();
-                    this.fetchUser(this.state.user_id);
-                  });
-                   
-          }
+          makeProtectedRequest("/coinSave", "POST", {
+            user_id: this.state.user_id,
+            amount: Number(this.state.coinValue),
+            coin_type: this.state.selectedOption.value,
+          }).then((response) => {
+            console.log("success", response.data);
+            Swal.fire({
+              text: response.data.message,
+              icon: "Success",
+            });
+            this.setState({ coinValue: "" });
+            this.setState({ selectedOption: null });
+            this.fetchAllCoin(this.state.user_id);
+            this.coinToggle();
+            this.fetchUser(this.state.user_id);
+          });
         }
       } catch (error) {
         this.setState({ message: "Error" });
@@ -410,19 +383,12 @@ class UserProfile extends React.Component {
   fetchAllCoin = (user_id) => {
     try {
       makeProtectedRequest("/fetchCoinById", "POST", {
-       user_id:user_id
+        user_id: user_id,
       })
         .then((response) => {
           if (response.success) {
             // console.log(">>", response.data);
             this.setState({ rewardHistory: response.data });
-            let totalCoinAmount = 0;
-            this.state.rewardHistory.filter((item) => {
-              this.setState({
-                totalCoinAmount: (totalCoinAmount += item.coin_amount),
-              });
-              console.log(">>", this.state.totalCoinAmount);
-            });
           } else {
             console.log("else part");
           }

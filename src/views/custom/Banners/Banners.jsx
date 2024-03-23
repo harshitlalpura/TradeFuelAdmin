@@ -116,6 +116,15 @@ class Banners extends React.Component {
   render() {
     const { banners } = this.state;
 
+    banners.sort((a, b) => {
+      // Convert 'user_created_at' strings to Date objects
+      const dateA = new Date(a.feedback_created_at);
+      const dateB = new Date(b.feedback_created_at);
+      
+      // Compare the dates
+      return dateB - dateA; // For descending order, use dateB - dateA
+  });
+
     return (
       <div>
         <div className="content">

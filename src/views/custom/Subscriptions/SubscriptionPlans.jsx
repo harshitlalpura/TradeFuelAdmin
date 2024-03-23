@@ -205,7 +205,7 @@ class SubscriptionPlans extends React.Component {
                           rowsPerPage={20}
                           rowsPerPageOption={[5, 10, 15, 20]}
                           initialSort={{
-                            prop: "plan_created_at",
+                            prop: "plan_no",
                             isAscending: true,
                           }}
                           onSort={onSortFunction}
