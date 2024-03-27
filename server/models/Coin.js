@@ -11,7 +11,9 @@ const CoinSchema = new mongoose.Schema({
         required: true
     },
     coin_amount: { type: Number, required: true, default: 0 },
-    coin_created_at: { type: Date, default: moment.tz('UTC').toDate() },
+    // coin_created_at: { type: Date, default: moment.tz('UTC').toDate() },
+    coin_created_at: { type: Date, default: Date.now }, // Set default value to current date/time
+
     coin_trash: { type: Boolean, default: false },
 });
 

@@ -332,6 +332,7 @@ class Transactions extends React.Component {
                                 transactionType:
                                   row.transactionType == "B" ? "Buy" : "Sell",
                                 stockSymbol: row.stockSymbol&&row.stockSymbol.split(".")[0],
+                                amount:Math.round(row.amount * 100) / 100,
                                 createdAt: moment
                                   .tz(row.createdAt, userTimeZone)
                                   .format("DD/MM/YYYY h:mm A"),

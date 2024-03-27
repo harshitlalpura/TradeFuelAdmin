@@ -33,6 +33,9 @@ const AdminSchema = new mongoose.Schema({
         admins: {type: Boolean, default: false},
         settings: {type: Boolean, default: false},
         news: {type: Boolean, default: false},
+        learn: {type: Boolean, default: false},
+        users: {type: Boolean, default: false},
+
     },
     admin_created_at: {type: Date, default: moment.tz('UTC').toDate()},
     admin_updated_at: {type: Date, default: moment.tz('UTC').toDate()},

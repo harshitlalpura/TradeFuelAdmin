@@ -32,8 +32,8 @@ const header = [
   {
     title: "Feedback",
     prop: "feedback_star",
-    sortable: true,
-    filterable: true,
+    sortable: false,
+    filterable: false,
   },
   {
     title: "Date/Time",

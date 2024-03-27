@@ -56,10 +56,13 @@ const header = [
 ];
 
 const onSortFunction = {
-  date(columnValue) {
+  notification_datetime(columnValue) {
     // Convert the string date format to UTC timestamp
     // So the table could sort it by number instead of by string
     return moment(columnValue, "Do MMMM YYYY").valueOf();
+  },
+  notification_heading(columnValue) {
+    return columnValue.toLowerCase();
   },
 };
 

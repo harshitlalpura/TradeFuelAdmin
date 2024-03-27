@@ -51,9 +51,9 @@ class ManageAdmin extends React.Component {
                 admin_phone: "",
                 admin_password: "",
                 admin_address: "",
-                admin_department: "",
+                admin_department: "Management",
                 admin_profile_image: "profile.png",
-                admin_role: "",
+                admin_role: "S",
                 admin_confirm_password: "",
                 admin_main: false,
                 admin_access: {
@@ -66,6 +66,8 @@ class ManageAdmin extends React.Component {
                     admins: false,
                     news: false,
                     settings: false,
+                    learn:false,
+                    users:false
                 }
             },
         };
@@ -126,7 +128,9 @@ class ManageAdmin extends React.Component {
                         value.feedbacks ||
                         value.notifications ||
                         value.admins ||
-                        value.settings
+                        value.settings ||
+                        value.learn ||
+                        value.users
                     );
                 }),
 
@@ -141,21 +145,27 @@ class ManageAdmin extends React.Component {
             const {location} = this.props;
 
 
-            if (location.state) {
-                // Accessing the passed value from state
+            // if (location.state) {
+            //     // Accessing the passed value from state
 
-                if (location.state.admin_id) {
-                    const admin_id = location.state.admin_id;
+            //     if (location.state.admin_id) {
+            //         const admin_id = location.state.admin_id;
 
-                    // Accessing the passed value from query parameters
-                    // const queryParams = new URLSearchParams(location.search);
-                    // const passedValue = queryParams.get('passedValue');
-                    console.log('Passed Value:', admin_id);
-                    this.setState({admin_id: admin_id});
-                    this.setState({mode: "update"});
+            //         // Accessing the passed value from query parameters
+            //         // const queryParams = new URLSearchParams(location.search);
+            //         // const passedValue = queryParams.get('passedValue');
+            //         console.log('Passed Value:', admin_id);
+            //         this.setState({admin_id: admin_id});
+            //         this.setState({mode: "update"});
 
-                    this.fetchAdmin(admin_id);
-                }
+            //         this.fetchAdmin(admin_id);
+            //     }
+            // }
+            const admin_id =   localStorage.getItem('admin_id')
+            if(admin_id){
+                this.setState({admin_id: admin_id});
+                this.setState({mode: "update"});
+                this.fetchAdmin(admin_id);
             }
         }
 
@@ -452,7 +462,24 @@ class ManageAdmin extends React.Component {
                                                                             News
                                                                         </Label>
                                                                     </FormGroup>
-
+                                                                    <FormGroup check>
+                                                                        <Label check>
+                                                                            <Input type="checkbox"
+                                                                                   name="admin_access.learn"
+                                                                                   checked={values.admin_access.learn}
+                                                                                   onChange={handleChange}/>{' '}
+                                                                            Learn
+                                                                        </Label>
+                                                                    </FormGroup>
+                                                                    <FormGroup check>
+                                                                        <Label check>
+                                                                            <Input type="checkbox"
+                                                                                   name="admin_access.users"
+                                                                                   checked={values.admin_access.users}
+                                                                                   onChange={handleChange}/>{' '}
+                                                                            Users
+                                                                        </Label>
+                                                                    </FormGroup>
                                                                     {/* Display checkbox error */}
 
                                                                     {errors.admin_access && touched.admin_access ? (

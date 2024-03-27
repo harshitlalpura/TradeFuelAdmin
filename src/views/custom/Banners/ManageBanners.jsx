@@ -36,10 +36,10 @@ class ManageBanners extends React.Component {
             banner: {
 
                 banner_name: "",
-                banner_type: "",
+                banner_type: "Text",
                 banner_text: "",
                 banner_image: "",
-                banner_position: "",
+                banner_position: "Top",
                 banner_date: "",
                 banner_expires_at: moment(),
                 banner_created_at: new Date(),

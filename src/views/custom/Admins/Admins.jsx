@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../../../components";
 
 import { makeProtectedRequest } from "../api";
+const userTimeZone = moment.tz.guess(); // Guess the user's timezone
 
 const header = [
   { title: "No", prop: "admin_no", sortable: false, filterable: false },
@@ -55,7 +56,7 @@ const customLabels = {
 };
 
 const ProcessDate = (row) => (
-  <span>{moment.tz(row.admin_created_at).format("DD/MM/YYYY h:mm A")}</span>
+  <span>{moment.tz(row.admin_created_at, userTimeZone).format("DD/MM/YYYY h:mm A")}</span>
 );
 const AdminRole = (row) => (
   <span>{row.admin_role == "S" ? "Super Admin" : "Admin"}</span>
@@ -75,8 +76,10 @@ class Admins extends React.Component {
 
   openAdmin = (id) => {
     const { history } = this.props;
+    localStorage.setItem('admin_id', id)
+    history.push("/admin");
 
-    history.push("/admin", { admin_id: id });
+    // history.push("/admin", { admin_id: id });
   };
   deleteAdmin = (id) => {
     try {

@@ -432,7 +432,7 @@ class UserProfile extends React.Component {
         return true; // No filtering if start or end date is not provided
       }
 
-      const transactionDate = moment.tz(row.createdAt, "UTC");
+      const transactionDate = moment.tz(row.createdAt, userTimeZone);
       const startOfDay = moment(startDate).startOf("day");
       const endOfDay = moment(endDate).endOf("day");
 

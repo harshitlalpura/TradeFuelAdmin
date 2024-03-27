@@ -24,11 +24,17 @@ const header = [
 
 
 const onSortFunction = {
-    date(columnValue) {
+    news_created_at(columnValue) {
         // Convert the string date format to UTC timestamp
         // So the table could sort it by number instead of by string
         return moment(columnValue, 'Do MMMM YYYY').valueOf();
     },
+    news_title(columnValue) {
+        return columnValue.toLowerCase();
+    },
+    news_author(columnValue) {
+        return columnValue.toLowerCase();
+    }
 };
 
 const customLabels = {

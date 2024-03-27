@@ -25,10 +25,16 @@ const header = [
 ];
 
 const onSortFunction = {
-  date(columnValue) {
+  learn_created_at(columnValue) {
     // Convert the string date format to UTC timestamp
     // So the table could sort it by number instead of by string
     return moment(columnValue, "Do MMMM YYYY").valueOf();
+  },
+  learn_title(columnValue) {
+    return columnValue.toLowerCase();
+  },
+  learn_category(columnValue) {
+    return columnValue.toLowerCase();
   },
 };
 
