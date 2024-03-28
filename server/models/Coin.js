@@ -15,6 +15,9 @@ const CoinSchema = new mongoose.Schema({
     coin_created_at: { type: Date, default: Date.now }, // Set default value to current date/time
 
     coin_trash: { type: Boolean, default: false },
+    coin_remarks: {
+        type: String // Add remarks field
+    }
 });
 
 

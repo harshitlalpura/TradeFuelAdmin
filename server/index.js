@@ -14,6 +14,7 @@ const learn = require('./controllers/Learn');
 const notification = require('./controllers/Notifications');
 const notificationGroups = require('./controllers/NotificationGroups');
 const learnCategories = require('./controllers/LearnCategories');
+const wallet = require('./controllers/Wallet');
 const Admins = require("./models/Admins");
 const jwt = require("jsonwebtoken");
 const multer = require('multer');
@@ -538,8 +539,9 @@ app.post('/saveLearn', (req, res) => {
 
 app.post('/saveSettings', authenticate, settings.saveSettings);
 app.post('/updateSettings', authenticate, settings.updateSettings);
-app.post('/saveBalance', user.saveBalance);
-
+// app.post('/saveBalance', user.saveBalance);
+app.post('/saveBalance', wallet.walletSave);
+app.post('/fetchWalletById', wallet.getWalletById)
 app.post('/saveNotificationGroup', authenticate, notificationGroups.saveNotificationGroup);
 app.post('/updateNotificationGroup', authenticate, notificationGroups.updateNotificationGroup);
 app.get('/fetchAllNotificationGroups', notificationGroups.fetchAllNotificationGroups);

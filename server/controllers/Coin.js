@@ -9,7 +9,7 @@ require("dotenv").config();
 
 exports.coinSave = async (req, res) => {
   try {
-    const { user_id, coin_type, amount } = req.body; // Assuming you're passing these values in the request body
+    const { user_id, coin_type, amount, coin_remarks } = req.body; // Assuming you're passing these values in the request body
     console.log((">>>", req.body))
 
 
@@ -31,6 +31,7 @@ exports.coinSave = async (req, res) => {
         user: user_id, 
         coin_type: coin_type,
         coin_amount: amount,
+        coin_remarks:coin_remarks
     });
     await saveCoin.save();
     res.status(200).json({success:true,message: 'User updated successfully.'});

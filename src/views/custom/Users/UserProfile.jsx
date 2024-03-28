@@ -25,10 +25,18 @@ import { makeProtectedRequest } from "../api";
 var IMGDIR = process.env.REACT_APP_IMGDIR;
 const userTimeZone = moment.tz.guess(); // Guess the user's timezone
 
+const walletHeader = [
+  { title: "No", prop: "no", sortable: false, filterable: false },
+  { title: "Amount", prop: "wallet_amount", sortable: true, filterable: false },
+  { title: "Remarks", prop: "remarks", sortable: true, filterable: false },
+  { title: "Date/Time", prop: "datetime", sortable: true, filterable: true },
+]
+
 const rewardHeader = [
   { title: "No", prop: "no", sortable: false, filterable: false },
   { title: "Type", prop: "coin_type", sortable: true, filterable: false },
   { title: "Amount", prop: "coin_amount", sortable: true, filterable: false },
+  { title: "Remarks", prop: "coin_remarks", sortable: true, filterable: false },
   { title: "Date/Time", prop: "datetime", sortable: true, filterable: true },
 ];
 const header = [
@@ -103,6 +111,7 @@ class UserProfile extends React.Component {
     this.state = {
       transactions: [],
       rewardHistory: [],
+      walletHistory:[],
       isOpen: false,
       modal: false,
       coinModel: false,
@@ -110,7 +119,9 @@ class UserProfile extends React.Component {
       startDate: "",
       endDate: "",
       balance: "",
+      remarks:"",
       coinValue: "",
+      coinRemarks:"",
       coninValueError: false,
       selectDropdownError: false,
       // selectedOption: null,
@@ -152,6 +163,7 @@ class UserProfile extends React.Component {
 
       this.fetchUser(user_id);
       this.fetchAllCoin(user_id);
+      this.fetchWallet(user_id)
     }
   }
 
@@ -246,6 +258,8 @@ class UserProfile extends React.Component {
   // open add wallat balance model
   toggle() {
     this.setState({ modal: !this.state.modal });
+    this.setState({remarks:""})
+    this.setState({balance:""})
   }
 
   // open add coin model
@@ -255,6 +269,7 @@ class UserProfile extends React.Component {
     this.setState({ selectDropdownError: false });
     this.setState({ coinValue: "" });
     this.setState({ selectedOption: null });
+    this.setState({coinRemarks:''})
   }
 
   toggleDropdown = () => {
@@ -304,15 +319,17 @@ class UserProfile extends React.Component {
       try {
         makeProtectedRequest("/saveBalance", "POST", {
           user_id: this.state.user_id,
-          user_balance:
-            Number(this.state.user.user_balance) + Number(this.state.balance),
+          user_balance:Number(this.state.balance),
+          remarks:this.state.remarks  
         })
           .then((response) => {
             // console.log(">>>>", response)
             if (response.success) {
               this.fetchUser(this.state.user_id);
               this.setState({ balance: "" });
+              this.setState({remarks:""})
               this.toggle();
+              this.fetchWallet(this.state.user_id)
               Swal.fire({
                 text: "Wallet Updated Successfully.",
                 icon: "Success",
@@ -355,6 +372,7 @@ class UserProfile extends React.Component {
             user_id: this.state.user_id,
             amount: Number(this.state.coinValue),
             coin_type: this.state.selectedOption.value,
+            coin_remarks: this.state.coinRemarks
           }).then((response) => {
             console.log("success", response.data);
             Swal.fire({
@@ -363,6 +381,7 @@ class UserProfile extends React.Component {
             });
             this.setState({ coinValue: "" });
             this.setState({ selectedOption: null });
+            this.setState({coinRemarks:''})
             this.fetchAllCoin(this.state.user_id);
             this.coinToggle();
             this.fetchUser(this.state.user_id);
@@ -413,18 +432,45 @@ class UserProfile extends React.Component {
     this.setState({ endDate: e.target.value });
   };
 
+  // wallet transection
+    fetchWallet = (user_id) => {
+      try {
+        makeProtectedRequest("/fetchWalletById", "POST", {
+          user_id: user_id,
+        })
+          .then((response) => {
+            if (response.success) {
+              // console.log(">>", response.data);
+              this.setState({ walletHistory: response.data });
+            } else {
+              console.log("else part");
+            }
+          })
+          .catch((error) => {
+            // Handle error
+            console.error(error);
+          });
+      } catch (error) {
+        // this.setState({ message: "Error" });
+        console.log(error);
+      }
+    };
+
   render() {
     const {
       user,
       transactions,
       balance,
+      remarks,
       modal,
       startDate,
       endDate,
       coinValue,
+      coinRemarks,
       selectedOption,
       learnCategory,
       rewardHistory,
+      walletHistory,
     } = this.state;
 
     const filteredTransactions = transactions.filter((row) => {
@@ -706,6 +752,7 @@ class UserProfile extends React.Component {
                             // coin_amount: Number(row.coin_amount).toFixed(2),
                             coin_amount:
                               Math.round(row.coin_amount * 100) / 100,
+                            coin_remarks:row.coin_remarks,  
                             datetime: moment
                               .tz(row.coin_created_at, userTimeZone)
                               .format("DD/MM/YYYY h:mm A"),
@@ -714,6 +761,49 @@ class UserProfile extends React.Component {
                         }
                         keyName="coinTable"
                         tableClass="striped rewardsHistoryTable table-hover table-responsive"
+                        rowsPerPage={20}
+                        rowsPerPageOption={[5, 10, 15, 20]}
+                        initialSort={{ prop: "planno", isAscending: true }}
+                        onSort={onSortFunction}
+                        labels={customLabels}
+                        table-props={{
+                          search: false,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+            <div className="col-xl-12">
+                <section className="box profile-page">
+                  <div className="content-body">
+                    <div className="col-12">
+                      <h4>Wallet Transaction History:</h4>
+                      <div className="clearfix"></div>
+                    </div>
+                    <div className="col-lg-12 dt-disp">
+                      <Datatable
+                        tableHeader={walletHeader}
+                        tableBody={
+                          walletHistory &&
+                          walletHistory.length > 0 &&
+                          walletHistory.map((row, index) => ({
+                            no: index + 1,
+                            wallet_amount:
+                              Math.round(row.wallet_amount * 100) / 100,
+                            remarks:row.remarks,  
+                            datetime: moment
+                              .tz(row.wallet_created_at, userTimeZone)
+                              .format("DD/MM/YYYY h:mm A"),
+                            // view: <ViewButton {...row} />,
+                          }))
+                        }
+                        keyName="coinTable"
+                        tableClass="striped walletHistoryTable table-hover table-responsive"
                         rowsPerPage={20}
                         rowsPerPageOption={[5, 10, 15, 20]}
                         initialSort={{ prop: "planno", isAscending: true }}
@@ -744,6 +834,14 @@ class UserProfile extends React.Component {
               placeholder="Enter value"
               value={balance}
               onChange={this.handleBalanceChange}
+            />
+            <Input
+              type="text"
+              name="balance"
+              id="balance"
+              placeholder="Enter remarks"
+              value={remarks}
+              onChange={(e)=>this.setState({remarks:e.target.value})}
             />
             {/* <Button style={{marginTop:"10px"}} onClick={this.handleWallateBalance}>Save</Button> */}
             <button
@@ -777,7 +875,7 @@ class UserProfile extends React.Component {
             <Dropdown
               isOpen={this.state.coinDropdown}
               toggle={this.toggleDropdown}
-              className="mt-2 w-100"
+              className="mt-2 mb-2 w-100"
             >
               <DropdownToggle
                 caret
@@ -813,6 +911,14 @@ class UserProfile extends React.Component {
                 <div className="text-danger">Please select value</div>
               ) : null}
             </Dropdown>
+            <Input
+              type="text"
+              name="balance"
+              id="balance"
+              placeholder="Enter remarks"
+              value={coinRemarks}
+              onChange={(e)=>this.setState({coinRemarks:e.target.value})}
+            />
             <br></br>
             <button
               type="button"
