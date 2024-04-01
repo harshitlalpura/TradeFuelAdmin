@@ -168,6 +168,7 @@ import Notifications from "../views/custom/Notifications/Notifications";
 import Users from "../views/custom/Users/Users";
 import News from "../views/custom/News/News";
 import Learn from "../views/custom/Learn/Learn";
+import Footer from "../views/custom/Footer/Footer"
 
 
 //import {menuStyle} from 'variables/settings/blog.jsx';
@@ -207,6 +208,7 @@ var dashRoutes = [
     {path: BASEDIR + "/learn", name: "Learn", icon: "graduation", component: Learn},
     {path: BASEDIR + "/users", name: "Users", icon: "people", component: Users},
     {path: BASEDIR + "/admins", name: "Admins", icon: "user-following", component: Admins},
+    // {path: BASEDIR + "/footer", name: "Footer", icon: "user-following", component: Footer},
 
     {
         path: "#", name: "System Settings", icon: "settings", type: "dropdown", parentid: "mailbox",
@@ -215,6 +217,7 @@ var dashRoutes = [
             {path: BASEDIR + "/settings/stockmarket", name: "Stock Market API"},
             {path: BASEDIR + "/settings/contactus", name: "Contact Us"},
             {path: BASEDIR + "/settings/maintenance", name: "Maintenance"},
+            {path: BASEDIR + "/footer", name: "Footer"},
         ]
     },
 
@@ -222,6 +225,7 @@ var dashRoutes = [
     {path: BASEDIR + "/settings/stockmarket", component: StockMarketAPI, type: "child"},
     {path: BASEDIR + "/settings/contactus", component: ContactSettings, type: "child"},
     {path: BASEDIR + "/settings/maintenance", component: MaintainanceSettings, type: "child"},
+    {path: BASEDIR + "/footer", component: Footer, type: "child"},
 
 
 

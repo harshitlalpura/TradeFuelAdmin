@@ -63,6 +63,7 @@ var indexRoutes = [
     {path: BASEDIR + "/learn", name: "Learn", component: GeneralLayout, authentication:false,access:"learn"},
     {path: BASEDIR + "/managelearn", name: "Manage Learn", component: CustomLayout, authentication:false,access:"learn"},
     {path: BASEDIR + "/profile", name: "User Profile", component: CustomLayout, authentication:false,access:"users"},
+    {path: BASEDIR + "/footer", name: "Footer", component: GeneralLayout, authentication:false,access:"footer"},
 
 
     {path: BASEDIR + "/", name: "Login", component: LoginPage, authentication:false},

@@ -15,6 +15,7 @@ const notification = require('./controllers/Notifications');
 const notificationGroups = require('./controllers/NotificationGroups');
 const learnCategories = require('./controllers/LearnCategories');
 const wallet = require('./controllers/Wallet');
+const footer = require('./controllers/Footer')
 const Admins = require("./models/Admins");
 const jwt = require("jsonwebtoken");
 const multer = require('multer');
@@ -152,6 +153,10 @@ app.use('/fetchStockDetails', cacheMiddleware);
 app.use('/fetchPortfolio', cacheMiddleware);
 app.use('/fetchTrandingStocks', cacheMiddleware);
 app.use('/fetchWorldIndices', cacheMiddleware);
+
+app.post('/footerSave', authenticate, footer.saveFooter)
+app.get('/fetchFooter', footer.fetchAllFooter)
+app.post('/updateFooter', authenticate, footer.updateFooter)
 
 app.post('/coinSave', coin.coinSave)
 app.get('/fetchAllCoin', coin.getAllCoins)

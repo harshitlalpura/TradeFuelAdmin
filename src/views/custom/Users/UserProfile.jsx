@@ -276,13 +276,21 @@ class UserProfile extends React.Component {
     this.setState({ coinDropdown: !this.state.coinDropdown });
   };
 
+  // handleBalanceChange = (event) => {
+  //   const value = event.target.value;
+  //   // Check if the value is a positive integer
+  //   if (/^\d+(\.\d+)?$/.test(value) || value === "") {
+  //     this.setState({ balance: value });
+  //   }
+  // };
   handleBalanceChange = (event) => {
     const value = event.target.value;
-    // Check if the value is a positive integer
-    if (/^\d+$/.test(value) || value === "") {
+    // Check if the value is a positive floating-point number
+    if (/^\d*\.?\d*$/.test(value) || value === "") {
       this.setState({ balance: value });
     }
   };
+  
   validationCatSchema = () => {
     return Yup.object().shape({
       coin_value: Yup.string()
@@ -296,6 +304,7 @@ class UserProfile extends React.Component {
     const value = event.target.value;
     // Check if the value is a positive integer
     if (/^\d+$/.test(value) || value === "") {
+      // if (/^\d*\.?\d*$/.test(value) || value === "") {
       this.setState({ coinValue: value });
       this.setState({ coninValueError: false });
     }
