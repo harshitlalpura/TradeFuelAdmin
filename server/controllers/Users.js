@@ -483,6 +483,7 @@ exports.createTransaction = async (req, res) => {
         const subscriptions = new Subscriptions({
             planId: req.body.planId,
             planPrice: parseFloat(req.body.planPrice),
+            planName:req.body.planName,
             planType: req.body.planType,
             userId: req.body.userId,
             razorpay_order_id: req.body.razorpay_order_id,

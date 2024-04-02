@@ -5,6 +5,9 @@ import {} from "components";
 import { makeProtectedRequest } from "../api";
 import moment from "moment";
 
+const userTimeZone = moment.tz.guess(); // Guess the user's timezone
+
+
 class ViewTransaction extends React.Component {
   constructor(props) {
     super(props);
@@ -93,9 +96,9 @@ class ViewTransaction extends React.Component {
                                 <div className="col-12 invoice-title">
                                   {/* <h2 className="">Order # 12345, 21st Jan 2023</h2> */}
                                   <h2>
-                                    Order # {transaction._id}{" "},
+                                    Order # {transaction._id},{" "}
                                     {moment
-                                      .tz(transaction.createdAt, "UTC")
+                                      .tz(transaction.createdAt,userTimeZone)
                                       .format("DD/MM/YYYY h:mm A")}
                                   </h2>
                                   <span className="invoice-order"></span>
@@ -127,8 +130,7 @@ class ViewTransaction extends React.Component {
                               <div className="col-lg-3 col-md-6 invoice-infoblock">
                                 <div className="invoice-due">
                                   <h4>Total Amount:</h4>
-                                  <h2 className="text-primary">$ {transaction.amount *
-                                        transaction.quantity}</h2>
+                                  <h2 className="text-primary">$ {transaction.amount }</h2>
                                 </div>
                               </div>
                             </div>
@@ -167,14 +169,13 @@ class ViewTransaction extends React.Component {
                                         transaction.stockSymbol.split(".")[0]}
                                     </td>
                                     <td className="text-center">
-                                      {transaction.amount}
+                                      {transaction.amount / transaction.quantity}
                                     </td>
                                     <td className="text-center">
                                       {transaction.quantity}
                                     </td>
                                     <td className="text-right">
-                                      {transaction.amount *
-                                        transaction.quantity}
+                                      {transaction.amount}
                                     </td>
                                   </tr>
 
@@ -213,8 +214,7 @@ class ViewTransaction extends React.Component {
                                         style={{ margin: 0 }}
                                         className="text-primary"
                                       >
-                                        {transaction.amount *
-                                          transaction.quantity }
+                                        {transaction.amount }
                                       </h3>
                                     </td>
                                   </tr>

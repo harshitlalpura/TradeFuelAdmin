@@ -10,6 +10,7 @@ const subscriptionSchema = new Schema({
         trim: true        // Remove any whitespace
     },
     planPrice: {type: Number},
+    planName:{type: String, default: ""},
     planType: {
         type: String,
         required: true,
