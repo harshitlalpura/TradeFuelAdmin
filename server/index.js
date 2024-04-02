@@ -421,7 +421,7 @@ app.get('/fetchUsers', authenticate, user.fetchUsers);
 app.post('/changeUserStatus', authenticate, user.changeUserStatus);
 app.post('/deleteUser', authenticate, user.deleteUser);
 app.post('/fetchUser', authenticate, user.fetchUser);
-
+app.post('/fetchSubscription', user.fetchSubscriptions)
 app.get('/fetchAllNews', news.fetchAllNews);
 app.post('/fetchNews', authenticate, news.fetchNews);
 app.post('/deleteNews', authenticate, news.deleteNews);

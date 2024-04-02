@@ -196,7 +196,7 @@ class Footer extends React.Component {
                   </header>
                   <div className="content-body">
                     <div className="row">
-                      <div className="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-8">
+                      <div className="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10">
                         <Formik
                           innerRef={this.formikRef}
                           enableReinitialize={true}
@@ -248,7 +248,7 @@ class Footer extends React.Component {
                                 <Label htmlFor="footer_privacy">
                                   Privacy Policy
                                 </Label>
-                                <div>
+                                <div style={{height:"500px"}}>
                                   <Editor
                                     editorState={editorState}
                                     wrapperClassName="demo-wrapper"
@@ -256,6 +256,7 @@ class Footer extends React.Component {
                                     onEditorStateChange={
                                       this.onEditorStateChange
                                     }
+                                    wrapperStyle={{ height: '400px' }}
                                   />
                                 </div>
                               </div>

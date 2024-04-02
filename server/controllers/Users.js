@@ -510,3 +510,13 @@ exports.fetchAllSubscriber = async (req, res) => {
         res.status(500).json({error: error.message});
     }
 };
+exports.fetchSubscriptions = async (req, res) => {
+    try {
+         const subscription = await Subscriptions.find({userId:req.body.user_id}).sort({ planPurchasedAt: -1 });;
+
+
+         res.status(200).json({success: true, data:subscription});
+        } catch (error) {
+        res.status(500).json({error: error.message});
+    }
+};
