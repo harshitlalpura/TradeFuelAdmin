@@ -8,6 +8,8 @@ const moment = require('moment-timezone');
 
 const FooterSchema = new mongoose.Schema({
     footer_description: {type: String},
+    customer_service: {type: String},
+    whatsapp: {type: String},
     footer_privcacy: {type: String},
     facebook_link: {type: String},
     twitter_link: {type: String},

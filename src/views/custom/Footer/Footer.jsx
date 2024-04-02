@@ -58,6 +58,8 @@ class Footer extends React.Component {
         footer_privcacy: "",
         // footer_sub_title: "",
         // footer_body: "",
+        customer_service:"",
+        whatsapp:"",
         facebook_link: "",
         twitter_link: "",
         instagram_link: "",
@@ -261,6 +263,28 @@ class Footer extends React.Component {
                                 </div>
                               </div>
                               <FormGroup>
+                                <Label>Customer Service</Label>
+                                <Input
+                                    type="text"
+                                    name="customer_service"
+                                    id="customer_service"
+                                    onChange={handleChange}
+                                    value={values.customer_service}
+                                    placeholder=""
+                                />
+                              </FormGroup>
+                              <FormGroup>
+                                <Label>Whatsapp</Label>
+                                <Input
+                                    type="text"
+                                    name="whatsapp"
+                                    id="whatsapp"
+                                    onChange={handleChange}
+                                    value={values.whatsapp}
+                                    placeholder=""
+                                />
+                              </FormGroup>
+                              <FormGroup>
                                 <Label>Facebook</Label>
                                 <Input
                                   type="text"
@@ -281,7 +305,7 @@ class Footer extends React.Component {
                                   value={values.twitter_link}
                                 />
                               </FormGroup>
-                              <FormGroup>
+                              {/*<FormGroup>
                                 <Label>Google</Label>
                                 <Input
                                   type="text"
@@ -290,7 +314,7 @@ class Footer extends React.Component {
                                   onChange={handleChange}
                                   value={values.google_link}
                                 />
-                              </FormGroup>
+                              </FormGroup>*/}
                               <FormGroup>
                                 <Label>Instagram</Label>
                                 <Input
@@ -301,7 +325,7 @@ class Footer extends React.Component {
                                   value={values.instagram_link}
                                 />
                               </FormGroup>
-                              <FormGroup>
+                              {/*<FormGroup>
                                 <Label>Linkedin</Label>
                                 <Input
                                   type="text"
@@ -310,7 +334,7 @@ class Footer extends React.Component {
                                   onChange={handleChange}
                                   value={values.linkedin_link}
                                 />
-                              </FormGroup>
+                              </FormGroup>*/}
 
                               <br />
 
