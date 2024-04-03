@@ -46,6 +46,7 @@ app.use('/admins', express.static(path.join(__dirname, '..', 'build')));
 app.use('/notifications', express.static(path.join(__dirname, '..', 'build')));
 app.use('/feedbacks', express.static(path.join(__dirname, '..', 'build')));
 app.use('/admin', express.static(path.join(__dirname, '..', 'build')));
+app.use('/footer', express.static(path.join(__dirname, '..', 'build')));
 app.use('/settings/paymentgateway', express.static(path.join(__dirname, '..', 'build')));
 app.use('/settings/stockmarket', express.static(path.join(__dirname, '..', 'build')));
 app.use('/settings/contactus', express.static(path.join(__dirname, '..', 'build')));
