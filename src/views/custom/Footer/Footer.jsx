@@ -227,10 +227,9 @@ class Footer extends React.Component {
                                   Description
                                 </Label>
                                 <Input
-                                  type="text"
+                                  type="textarea"
                                   name="footer_description"
                                   id="footer_description"
-                                  style={{ height: "150px" }}
                                   onChange={handleChange}
                                   value={values.footer_description}
                                   placeholder=""

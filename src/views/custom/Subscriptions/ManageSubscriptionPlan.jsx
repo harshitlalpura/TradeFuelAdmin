@@ -218,7 +218,7 @@ class ManageSubscriptionPlan extends React.Component {
                                                                 {errors.plan_price && touched.plan_price ? (
                                                                     <FormFeedback>{errors.plan_price}</FormFeedback>) : null}
                                                             </FormGroup>
-                                                            <FormGroup>
+                                                            <FormGroup className='d-none'>
                                                                 <Label htmlFor="plan_discount">Discount</Label>
                                                                 <Input type="text" name="plan_discount" id="plan_discount"
                                                                        onChange={handleChange}
