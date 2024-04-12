@@ -25,6 +25,15 @@ import { makeProtectedRequest } from "../api";
 var IMGDIR = process.env.REACT_APP_IMGDIR;
 const userTimeZone = moment.tz.guess(); // Guess the user's timezone
 
+// For Subscription 
+const subscriptionHeader = [
+  { title: "No", prop: "no", sortable: false, filterable: false },
+  { title: "Plan Name", prop: "plan_name", sortable: true, filterable: false },
+  { title: "Plan Price", prop: "plan_price", sortable: true, filterable: false },
+  { title: "Plan Type", prop: "plan_type", sortable: true, filterable: false},
+  { title: "Start Date", prop: "start_date", sortable: true, filterable: true },
+  { title: "End Date", prop: "end_date", sortable: true, filterable: true },
+]
 const walletHeader = [
   { title: "No", prop: "no", sortable: false, filterable: false },
   { title: "Amount", prop: "wallet_amount", sortable: true, filterable: false },
@@ -112,6 +121,7 @@ class UserProfile extends React.Component {
       transactions: [],
       rewardHistory: [],
       walletHistory:[],
+      subscriptionDetails:[],
       isOpen: false,
       modal: false,
       coinModel: false,
@@ -164,6 +174,7 @@ class UserProfile extends React.Component {
       this.fetchUser(user_id);
       this.fetchAllCoin(user_id);
       this.fetchWallet(user_id)
+      this.fetchSubscriptionDetails(user_id)
     }
   }
 
@@ -465,6 +476,30 @@ class UserProfile extends React.Component {
       }
     };
 
+  // Subscription Details
+    // get all coin
+    fetchSubscriptionDetails = (user_id) => {
+      try {
+        makeProtectedRequest("/fetchSubscription", "POST", {
+          user_id: user_id,
+        })
+          .then((response) => {
+            if (response.success) {
+              // console.log(">>", response.data);
+              this.setState({ subscriptionDetails: response.data.data });
+            } else {
+              console.log("else part");
+            }
+          })
+          .catch((error) => {
+            // Handle error
+            console.error(error);
+          });
+      } catch (error) {
+        // this.setState({ message: "Error" });
+        console.log(error);
+      }
+    };  
   render() {
     const {
       user,
@@ -480,6 +515,7 @@ class UserProfile extends React.Component {
       learnCategory,
       rewardHistory,
       walletHistory,
+      subscriptionDetails,
     } = this.state;
 
     const filteredTransactions = transactions.filter((row) => {
@@ -808,6 +844,55 @@ class UserProfile extends React.Component {
                             datetime: moment
                               .tz(row.wallet_created_at, userTimeZone)
                               .format("DD/MM/YYYY h:mm A"),
+                            // view: <ViewButton {...row} />,
+                          }))
+                        }
+                        keyName="coinTable"
+                        tableClass="striped walletHistoryTable table-hover table-responsive"
+                        rowsPerPage={20}
+                        rowsPerPageOption={[5, 10, 15, 20]}
+                        initialSort={{ prop: "planno", isAscending: true }}
+                        onSort={onSortFunction}
+                        labels={customLabels}
+                        table-props={{
+                          search: false,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+            <div className="col-xl-12">
+                <section className="box profile-page">
+                  <div className="content-body">
+                    <div className="col-12">
+                      <h4>Subscription Details:</h4>
+                      <div className="clearfix"></div>
+                    </div>
+                    <div className="col-lg-12 dt-disp">
+                      <Datatable
+                        tableHeader={subscriptionHeader}
+                        tableBody={
+                          subscriptionDetails &&
+                          subscriptionDetails.length > 0 &&
+                          subscriptionDetails.map((row, index) => ({
+                            no: index + 1,
+                            plan_name : row.planName,
+                            plan_price : row.planPrice,
+                            plan_type : row.planType,
+                            start_date: moment
+                              .tz(row.planPurchasedAt, userTimeZone)
+                              .format("DD/MM/YYYY"),
+                            end_date: moment(row.planPurchasedAt)
+                            .add(
+                              row.planType === "M" ? 30 : row.planType === "W" ? 7 : 365,
+                              row.planType === "W" ? "days" : "days"
+                            )
+                            .format("DD/MM/YYYY"),  
                             // view: <ViewButton {...row} />,
                           }))
                         }
