@@ -10481,3 +10481,10 @@ button.btn.btn-default {
   display: flex;
   align-items: center;
   justify-content: space-between; }
+
+/* ==== .subscription-table CSS Change ====> */
+.subscription-table td:nth-child(2) {
+  width: 380px !important; }
+  
+.subscription-table td:nth-child(3) {
+  width: 140px !important; }

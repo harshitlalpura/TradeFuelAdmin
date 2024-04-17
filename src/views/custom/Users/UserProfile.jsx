@@ -28,7 +28,7 @@ const userTimeZone = moment.tz.guess(); // Guess the user's timezone
 // For Subscription 
 const subscriptionHeader = [
   { title: "No", prop: "no", sortable: false, filterable: false },
-  { title: "Plan Name", prop: "plan_name", sortable: true, filterable: false },
+  { title: "Plan Name", prop: "plan_name", sortable: true, filterable: true },
   { title: "Plan Price", prop: "plan_price", sortable: true, filterable: false },
   { title: "Plan Type", prop: "plan_type", sortable: true, filterable: false},
   { title: "Start Date", prop: "start_date", sortable: true, filterable: true },
@@ -79,6 +79,16 @@ const onSortFunction = {
   },
 };
 
+const onSortFunctionSub = {
+  plan_name(columnValue) {
+    return columnValue.toLowerCase();
+  },
+  date(columnValue) {
+    // Convert the string date format to UTC timestamp
+    // So the table could sort it by number instead of by string
+    return moment(columnValue, "Do MMMM YYYY").valueOf();
+  },
+}
 const customLabels = {
   first: "<<",
   last: ">>",
@@ -897,11 +907,11 @@ class UserProfile extends React.Component {
                           }))
                         }
                         keyName="coinTable"
-                        tableClass="striped walletHistoryTable table-hover table-responsive"
+                        tableClass="striped subscription-table table-hover table-responsive"
                         rowsPerPage={20}
                         rowsPerPageOption={[5, 10, 15, 20]}
                         initialSort={{ prop: "planno", isAscending: true }}
-                        onSort={onSortFunction}
+                        onSort={onSortFunctionSub}
                         labels={customLabels}
                         table-props={{
                           search: false,
